@@ -1160,6 +1160,12 @@ if(NOT "${CUSTOM_LSB_RELEASE_PATH}" STREQUAL "")
     target_compile_definitions(libfastfetch PRIVATE FF_CUSTOM_LSB_RELEASE_PATH=${CUSTOM_LSB_RELEASE_PATH})
 endif()
 
+option(FF_TARGET_ZTE_CAT "Build for ZTE CAT devices (e.g. optical modem)" OFF)
+if(FF_TARGET_ZTE_CAT)
+    message(STATUS "Building for ZTE CAT target device")
+    target_compile_definitions(libfastfetch PRIVATE FF_TARGET_ZTE_CAT=1)
+endif()
+
 if(NOT BINARY_LINK_TYPE STREQUAL "dlopen")
     message(STATUS "Enabling custom link type: ${BINARY_LINK_TYPE}")
     target_compile_definitions(libfastfetch PRIVATE FF_DISABLE_DLOPEN=1)

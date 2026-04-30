@@ -1,5 +1,6 @@
 #include "board.h"
 #include "common/io.h"
+#include "common/properties.h"
 #include "common/smbios.h"
 
 const char* ffDetectBoard(FFBoardResult* board) {
@@ -12,6 +13,14 @@ const char* ffDetectBoard(FFBoardResult* board) {
         if (ffReadFileBuffer("/sys/firmware/devicetree/base/smbios/smbios/baseboard/manufacturer", &board->vendor)) {
             ffStrbufTrimRight(&board->vendor, '\0');
         }
+#ifdef FF_TARGET_ZTE_CAT
+    } else if (ffParsePropFileValues("/proc/capability/boardtype", 2, (FFpropquery[]) {
+                                                                            { "type       : ", &board->name },
+                                                                            { "chipvendor : ", &board->vendor },
+                                                                        })) {
+        ffStrbufTrimRightSpace(&board->name);
+        ffStrbufTrimRightSpace(&board->vendor);
+#endif
     } else if (ffReadFileBuffer("/sys/firmware/devicetree/base/board", &board->name)) {
         ffStrbufTrimRightSpace(&board->name);
     } else if (ffReadFileBuffer("/sys/firmware/devicetree/base/compatible", &board->vendor)) {
