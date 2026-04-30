@@ -540,6 +540,7 @@ static void getPackageCounts(FFstrbuf* baseDir, FFPackagesResult* packageCounts,
     }
     if (FF_PACKAGES_IS_ENABLED(options, OPKG)) {
         packageCounts->opkg += getNumStrings(baseDir, "/usr/lib/opkg/status", "Package:", "opkg"); // openwrt
+        packageCounts->opkg += getNumStrings(baseDir, "/opt/lib/opkg/status", "Package:", "opkg"); // entware
     }
     if (FF_PACKAGES_IS_ENABLED(options, AM)) {
         packageCounts->amSystem = getAMSystem(baseDir);

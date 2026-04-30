@@ -33,6 +33,16 @@ static bool parseOsRelease(const char* fileName, FFOSResult* result) {
                                                });
 }
 
+static bool parseEntwareRelease(const char* fileName, FFOSResult* result) {
+    return ffParsePropFileValues(fileName, 5, (FFpropquery[]) {
+                                                  { "PRETTY_NAME =", &result->prettyName },
+                                                  { "NAME =", &result->name },
+                                                  { "ID =", &result->id },
+                                                  { "VERSION =", &result->version },
+                                                  { "VERSION_ID =", &result->versionID },
+                                              });
+}
+
 // Common logic for detecting Armbian image version
 FF_A_UNUSED static bool detectArmbianVersion(FFOSResult* result) {
     // Possible values `PRETTY_NAME` starts with on Armbian:
@@ -387,6 +397,9 @@ static void detectOS(FFOSResult* os) {
     }
     if (os->id.length == 0 || os->name.length == 0 || os->prettyName.length == 0) {
         parseOsRelease(FASTFETCH_TARGET_DIR_USR "/lib/os-release", os);
+    }
+    if (os->id.length == 0 || os->name.length == 0 || os->prettyName.length == 0) {
+        parseEntwareRelease("/opt/etc/entware_release", os);
     }
     if (os->id.length == 0 && os->name.length == 0 && os->prettyName.length == 0) {
         // HarmonyOS has no os-release file
