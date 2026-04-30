@@ -67,25 +67,6 @@ int main(void) {
         ffPrintDisplay(&options);
     }
     {
-        MODULE_OPTION(DE)
-        ffPrintDE(&options);
-    }
-    {
-        instance.config.general.detectVersion = false;
-        MODULE_OPTION(WM)
-        options.detectPlugin = true;
-        ffPrintWM(&options);
-        instance.config.general.detectVersion = true;
-    }
-    {
-        MODULE_OPTION(WMTheme)
-        ffPrintWMTheme(&options);
-    }
-    {
-        MODULE_OPTION(Theme)
-        ffPrintTheme(&options);
-    }
-    {
         MODULE_OPTION(Icons)
         ffPrintIcons(&options);
     }
@@ -94,19 +75,8 @@ int main(void) {
         ffPrintTerminal(&options);
     }
     {
-        MODULE_OPTION(TerminalFont)
-        ffStrbufSetStatic(&options.moduleArgs.outputFormat, "{/name}{-}{/}{name}{?size} {size}{?}");
-        ffPrintTerminalFont(&options);
-    }
-    {
         MODULE_OPTION(CPU)
         ffPrintCPU(&options);
-    }
-    {
-        MODULE_OPTION(GPU)
-        ffStrbufSetStatic(&options.moduleArgs.key, "GPU");
-        ffStrbufSetStatic(&options.moduleArgs.outputFormat, "{name}");
-        ffPrintGPU(&options);
     }
     {
         MODULE_OPTION(Memory)

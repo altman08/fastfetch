@@ -5,34 +5,24 @@ static FFModuleBaseInfo* A[] = {
 };
 
 static FFModuleBaseInfo* B[] = {
-    &ffBatteryModuleInfo,
-    &ffBiosModuleInfo,
-    &ffBluetoothModuleInfo,
-    &ffBluetoothRadioModuleInfo,
     &ffBoardModuleInfo,
-    &ffBootmgrModuleInfo,
     &ffBreakModuleInfo,
-    &ffBrightnessModuleInfo,
     &ffBtrfsModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* C[] = {
-    &ffCameraModuleInfo,
-    &ffChassisModuleInfo,
     &ffCommandModuleInfo,
     &ffColorsModuleInfo,
     &ffCPUModuleInfo,
     &ffCPUCacheModuleInfo,
     &ffCPUUsageModuleInfo,
-    &ffCursorModuleInfo,
     &ffCustomModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* D[] = {
     &ffDateTimeModuleInfo,
-    &ffDEModuleInfo,
     &ffDisplayModuleInfo,
     &ffDiskModuleInfo,
     &ffDiskIOModuleInfo,
@@ -46,13 +36,10 @@ static FFModuleBaseInfo* E[] = {
 };
 
 static FFModuleBaseInfo* F[] = {
-    &ffFontModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* G[] = {
-    &ffGamepadModuleInfo,
-    &ffGPUModuleInfo,
     NULL,
 };
 
@@ -73,12 +60,10 @@ static FFModuleBaseInfo* J[] = {
 
 static FFModuleBaseInfo* K[] = {
     &ffKernelModuleInfo,
-    &ffKeyboardModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* L[] = {
-    &ffLMModuleInfo,
     &ffLoadavgModuleInfo,
     &ffLocaleModuleInfo,
     &ffLocalIPModuleInfo,
@@ -87,10 +72,7 @@ static FFModuleBaseInfo* L[] = {
 };
 
 static FFModuleBaseInfo* M[] = {
-    &ffMediaModuleInfo,
     &ffMemoryModuleInfo,
-    &ffMonitorModuleInfo,
-    &ffMouseModuleInfo,
     NULL,
 };
 
@@ -100,8 +82,6 @@ static FFModuleBaseInfo* N[] = {
 };
 
 static FFModuleBaseInfo* O[] = {
-    &ffOpenCLModuleInfo,
-    &ffOpenGLModuleInfo,
     &ffOSModuleInfo,
     NULL,
 };
@@ -110,8 +90,6 @@ static FFModuleBaseInfo* P[] = {
     &ffPackagesModuleInfo,
     &ffPhysicalDiskModuleInfo,
     &ffPhysicalMemoryModuleInfo,
-    &ffPlayerModuleInfo,
-    &ffPowerAdapterModuleInfo,
     &ffProcessesModuleInfo,
     &ffPublicIPModuleInfo,
     NULL,
@@ -128,19 +106,14 @@ static FFModuleBaseInfo* R[] = {
 static FFModuleBaseInfo* S[] = {
     &ffSeparatorModuleInfo,
     &ffShellModuleInfo,
-    &ffSoundModuleInfo,
     &ffSwapModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* T[] = {
     &ffTerminalModuleInfo,
-    &ffTerminalFontModuleInfo,
     &ffTerminalSizeModuleInfo,
-    &ffTerminalThemeModuleInfo,
     &ffTitleModuleInfo,
-    &ffThemeModuleInfo,
-    &ffTPMModuleInfo,
     NULL,
 };
 
@@ -152,16 +125,13 @@ static FFModuleBaseInfo* U[] = {
 
 static FFModuleBaseInfo* V[] = {
     &ffVersionModuleInfo,
-    &ffVulkanModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* W[] = {
     &ffWallpaperModuleInfo,
     &ffWeatherModuleInfo,
-    &ffWMModuleInfo,
     &ffWifiModuleInfo,
-    &ffWMThemeModuleInfo,
     NULL,
 };
 
@@ -174,7 +144,6 @@ static FFModuleBaseInfo* Y[] = {
 };
 
 static FFModuleBaseInfo* Z[] = {
-    &ffZpoolModuleInfo,
     NULL,
 };
 

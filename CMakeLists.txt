@@ -69,12 +69,9 @@ include(CheckIncludeFile)
 
 include(CMakeDependentOption)
 
-cmake_dependent_option(ENABLE_VULKAN "Enable vulkan" ON "LINUX OR APPLE OR FreeBSD OR OpenBSD OR NetBSD OR WIN32 OR ANDROID OR SunOS OR Haiku OR GNU" OFF)
 cmake_dependent_option(ENABLE_WAYLAND "Enable wayland-client" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR GNU" OFF)
 cmake_dependent_option(ENABLE_XCB_RANDR "Enable xcb-randr" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_XRANDR "Enable xrandr" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_DRM "Enable libdrm" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_DRM_AMDGPU "Enable libdrm_amdgpu" ON "LINUX OR FreeBSD OR GNU" OFF)
 cmake_dependent_option(ENABLE_GIO "Enable gio-2.0" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_DCONF "Enable dconf" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_DBUS "Enable dbus-1" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR Haiku OR GNU" OFF)
@@ -83,12 +80,6 @@ cmake_dependent_option(ENABLE_RPM "Enable rpm" ON "LINUX OR GNU" OFF)
 cmake_dependent_option(ENABLE_IMAGEMAGICK7 "Enable imagemagick 7" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR APPLE OR ANDROID OR WIN32 OR SunOS OR Haiku OR GNU" OFF)
 cmake_dependent_option(ENABLE_IMAGEMAGICK6 "Enable imagemagick 6" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR APPLE OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_CHAFA "Enable chafa" ON "ENABLE_IMAGEMAGICK6 OR ENABLE_IMAGEMAGICK7" OFF)
-cmake_dependent_option(ENABLE_EGL "Enable egl" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR WIN32 OR SunOS OR Haiku OR GNU" OFF)
-cmake_dependent_option(ENABLE_GLX "Enable glx" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_OPENCL "Enable opencl" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR WIN32 OR ANDROID OR SunOS OR Haiku OR GNU" OFF)
-cmake_dependent_option(ENABLE_FREETYPE "Enable freetype" ON "ANDROID" OFF)
-cmake_dependent_option(ENABLE_PULSE "Enable pulse" ON "LINUX OR ANDROID OR GNU" OFF)
-cmake_dependent_option(ENABLE_DDCUTIL "Enable ddcutil" ON "LINUX" OFF)
 cmake_dependent_option(ENABLE_ELF "Enable libelf" ON "LINUX OR ANDROID OR DragonFly OR Haiku OR GNU" OFF)
 cmake_dependent_option(ENABLE_THREADS "Enable multithreading" ON "Threads_FOUND" OFF)
 
@@ -101,8 +92,6 @@ option(BUILD_TESTS "Build tests" OFF) # Also create test executables
 option(SET_TWEAK "Add tweak to project version" ON) # This is set to off by github actions for release builds
 option(IS_MUSL "Build with musl libc" OFF) # Used by Github Actions
 option(INSTALL_LICENSE "Install license into /usr/share/licenses" ON)
-option(ENABLE_EMBEDDED_PCIIDS "Embed pci.ids into fastfetch, requires `python`" OFF)
-option(ENABLE_EMBEDDED_AMDGPUIDS "Embed amdgpu.ids into fastfetch, requires `python`" OFF)
 option(ENABLE_WORDEXP "Enable using of wordexp(3) if available, instead of glob(3)" ON)
 option(ENABLE_LIBZFS "Enable libzfs" ON)
 if(WIN32 AND NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
@@ -129,8 +118,6 @@ foreach(package_manager ${PACKAGE_MANAGERS})
 endforeach()
 
 if (LINUX)
-    set(CUSTOM_PCI_IDS_PATH "" CACHE STRING "Custom path to file pci.ids, defaults to `/usr/share/hwdata/pci.ids`")
-    set(CUSTOM_AMDGPU_IDS_PATH "" CACHE STRING "Custom path to file amdgpu.ids, defaults to `/usr/share/libdrm/amdgpu.ids`")
     set(CUSTOM_OS_RELEASE_PATH "" CACHE STRING "Custom path to file os-release, defaults to `/etc/os-release`")
 endif()
 
@@ -296,48 +283,6 @@ else()
     file(READ "src/data/help.json" DATATEXT_JSON_HELP)
 endif()
 
-if(ENABLE_EMBEDDED_PCIIDS AND NOT EXISTS "${PROJECT_BINARY_DIR}/fastfetch_pciids.c.inc")
-    if(Python_FOUND)
-        if(NOT EXISTS "${PROJECT_BINARY_DIR}/pci.ids")
-            message(STATUS "'${PROJECT_BINARY_DIR}/pci.ids' is missing, downloading...")
-            file(DOWNLOAD "https://pci-ids.ucw.cz/v2.2/pci.ids" "${PROJECT_BINARY_DIR}/pci.ids")
-        endif()
-        message(STATUS "Generating 'fastfetch_pciids.c.inc'")
-        execute_process(COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen-pciids.py" "${PROJECT_BINARY_DIR}/pci.ids"
-                        OUTPUT_FILE "${PROJECT_BINARY_DIR}/fastfetch_pciids.c.inc"
-                        RESULT_VARIABLE PYTHON_PCIIDS_RETCODE)
-        if(NOT PYTHON_PCIIDS_RETCODE EQUAL 0)
-            file(REMOVE "${PROJECT_BINARY_DIR}/fastfetch_pciids.c.inc")
-            message(WARNING "Failed to generate 'fastfetch_pciids.c.inc'")
-            set(ENABLE_EMBEDDED_PCIIDS OFF)
-        endif()
-    else()
-        message(WARNING "Python3 is not found, 'fastfetch_pciids.c.inc' will not be generated")
-        set(ENABLE_EMBEDDED_PCIIDS OFF)
-    endif()
-endif()
-
-if(ENABLE_EMBEDDED_AMDGPUIDS AND NOT EXISTS "${PROJECT_BINARY_DIR}/fastfetch_amdgpuids.c.inc")
-    if(Python_FOUND)
-        if(NOT EXISTS "${PROJECT_BINARY_DIR}/amdgpu.ids")
-            message(STATUS "'${PROJECT_BINARY_DIR}/amdgpu.ids' is missing, downloading...")
-            file(DOWNLOAD "https://gitlab.freedesktop.org/mesa/drm/-/raw/main/data/amdgpu.ids" "${PROJECT_BINARY_DIR}/amdgpu.ids")
-        endif()
-        message(STATUS "Generating 'fastfetch_amdgpuids.c.inc'")
-        execute_process(COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen-amdgpuids.py" "${PROJECT_BINARY_DIR}/amdgpu.ids"
-                        OUTPUT_FILE "${PROJECT_BINARY_DIR}/fastfetch_amdgpuids.c.inc"
-                        RESULT_VARIABLE PYTHON_AMDGPUIDS_RETCODE)
-        if(NOT PYTHON_AMDGPUIDS_RETCODE EQUAL 0)
-            file(REMOVE "${PROJECT_BINARY_DIR}/fastfetch_amdgpuids.c.inc")
-            message(WARNING "Failed to generate 'fastfetch_amdgpuids.c.inc'")
-            set(ENABLE_EMBEDDED_AMDGPUIDS OFF)
-        endif()
-    else()
-        message(WARNING "Python3 is not found, 'fastfetch_amdgpuids.c.inc' will not be generated")
-        set(ENABLE_EMBEDDED_AMDGPUIDS OFF)
-    endif()
-endif()
-
 if(Python_FOUND)
     message(STATUS "Generating 'fastfetch.1'")
     execute_process(COMMAND ${Python_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen-man.py"
@@ -406,9 +351,6 @@ set(LIBFASTFETCH_SRC
     src/common/impl/path.c
     src/common/impl/FFPlatform.c
     src/common/impl/smbios.c
-    src/detection/bluetoothradio/bluetoothradio.c
-    src/detection/bootmgr/bootmgr.c
-    src/detection/chassis/chassis.c
     src/detection/cpu/cpu.c
     src/detection/cpuusage/cpuusage.c
     src/detection/command/command.c
@@ -416,103 +358,64 @@ set(LIBFASTFETCH_SRC
     src/detection/diskio/diskio.c
     src/detection/displayserver/displayserver.c
     src/detection/editor/editor.c
-    src/detection/font/font.c
-    src/detection/gpu/gpu.c
     src/detection/host/host_mac.c
     src/detection/media/media.c
     src/detection/netio/netio.c
-    src/detection/opencl/opencl.c
-    src/detection/opengl/opengl_shared.c
     src/detection/os/os.c
     src/detection/packages/packages.c
     src/detection/physicalmemory/physicalmemory.c
     src/detection/publicip/publicip.c
-    src/detection/terminaltheme/terminaltheme.c
-    src/detection/terminalfont/terminalfont.c
     src/detection/terminalshell/terminalshell.c
     src/detection/version/version.c
-    src/detection/vulkan/vulkan.c
     src/detection/weather/weather.c
-    src/detection/zpool/zpool.c
     src/logo/builtin.c
     src/logo/image/im6.c
     src/logo/image/im7.c
     src/logo/image/image.c
     src/logo/logo.c
-    src/modules/battery/battery.c
-    src/modules/bios/bios.c
-    src/modules/bluetooth/bluetooth.c
-    src/modules/bluetoothradio/bluetoothradio.c
     src/modules/board/board.c
-    src/modules/bootmgr/bootmgr.c
-    src/modules/brightness/brightness.c
     src/modules/break/break.c
     src/modules/btrfs/btrfs.c
-    src/modules/camera/camera.c
-    src/modules/chassis/chassis.c
     src/modules/colors/colors.c
     src/modules/cpu/cpu.c
     src/modules/cpucache/cpucache.c
     src/modules/cpuusage/cpuusage.c
-    src/modules/cursor/cursor.c
     src/modules/custom/custom.c
     src/modules/command/command.c
     src/modules/datetime/datetime.c
-    src/modules/de/de.c
     src/modules/disk/disk.c
     src/modules/diskio/diskio.c
     src/modules/dns/dns.c
     src/modules/editor/editor.c
-    src/modules/font/font.c
-    src/modules/gpu/gpu.c
     src/modules/host/host.c
     src/modules/icons/icons.c
     src/modules/initsystem/initsystem.c
-    src/modules/gamepad/gamepad.c
     src/modules/kernel/kernel.c
-    src/modules/keyboard/keyboard.c
-    src/modules/lm/lm.c
     src/modules/loadavg/loadavg.c
     src/modules/locale/locale.c
     src/modules/localip/localip.c
     src/modules/logo/logo.c
     src/modules/memory/memory.c
-    src/modules/monitor/monitor.c
     src/modules/netio/netio.c
-    src/modules/opencl/opencl.c
-    src/modules/opengl/opengl.c
     src/modules/os/os.c
     src/modules/packages/packages.c
     src/modules/physicaldisk/physicaldisk.c
     src/modules/physicalmemory/physicalmemory.c
     src/modules/processes/processes.c
-    src/modules/player/player.c
-    src/modules/poweradapter/poweradapter.c
     src/modules/publicip/publicip.c
     src/modules/display/display.c
     src/modules/separator/separator.c
     src/modules/shell/shell.c
-    src/modules/sound/sound.c
     src/modules/swap/swap.c
-    src/modules/media/media.c
-    src/modules/mouse/mouse.c
     src/modules/terminal/terminal.c
-    src/modules/terminaltheme/terminaltheme.c
-    src/modules/terminalfont/terminalfont.c
     src/modules/terminalsize/terminalsize.c
-    src/modules/theme/theme.c
     src/modules/title/title.c
-    src/modules/tpm/tpm.c
     src/modules/uptime/uptime.c
     src/modules/users/users.c
     src/modules/version/version.c
-    src/modules/vulkan/vulkan.c
     src/modules/wallpaper/wallpaper.c
     src/modules/weather/weather.c
     src/modules/wifi/wifi.c
-    src/modules/wm/wm.c
-    src/modules/wmtheme/wmtheme.c
-    src/modules/zpool/zpool.c
     src/modules/modules.c
     src/options/display.c
     src/options/logo.c
@@ -529,19 +432,11 @@ if(LINUX)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_linux.c
-        src/detection/battery/battery_linux.c
-        src/detection/bios/bios_linux.c
         src/detection/board/board_linux.c
-        src/detection/bootmgr/bootmgr_linux.c
-        src/detection/brightness/brightness_linux.c
         src/detection/btrfs/btrfs_linux.c
-        src/detection/chassis/chassis_linux.c
         src/detection/cpu/cpu_linux.c
         src/detection/cpucache/cpucache_linux.c
         src/detection/cpuusage/cpuusage_linux.c
-        src/detection/cursor/cursor_linux.c
-        src/detection/bluetooth/bluetooth_linux.c
-        src/detection/bluetoothradio/bluetoothradio_linux.c
         src/detection/disk/disk_linux.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_linux.c
@@ -561,48 +456,29 @@ if(LINUX)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_linux.c
-        src/detection/gpu/gpu_drm.c
-        src/detection/gpu/gpu_pci.c
-        src/detection/gpu/gpu_windows.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_linux.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_linux.c
         src/detection/libc/libc_linux.c
-        src/detection/lm/lm_linux.c
         src/detection/loadavg/loadavg_linux.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_linux.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/mouse/mouse_linux.c
         src/detection/netio/netio_linux.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/poweradapter/poweradapter_linux.c
         src/detection/processes/processes_linux.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_linux.c
         src/detection/swap/swap_linux.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_linux.c
         src/detection/uptime/uptime_linux.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_linux.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_linux.c
+        src/detection/media/media_linux.c
     )
 elseif(ANDROID)
     list(APPEND LIBFASTFETCH_SRC
@@ -614,18 +490,10 @@ elseif(ANDROID)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_linux.c
-        src/detection/battery/battery_android.c
-        src/detection/bios/bios_android.c
-        src/detection/bluetooth/bluetooth_nosupport.c
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/board/board_android.c
-        src/detection/bootmgr/bootmgr_nosupport.c
-        src/detection/brightness/brightness_nosupport.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_nosupport.c
         src/detection/cpu/cpu_linux.c
         src/detection/cpucache/cpucache_linux.c
-        src/detection/cursor/cursor_linux.c
         src/detection/cpuusage/cpuusage_linux.c
         src/detection/disk/disk_linux.c
         src/detection/dns/dns_linux.c
@@ -639,44 +507,27 @@ elseif(ANDROID)
         src/detection/displayserver/linux/xlib.c
         src/detection/gtk_qt/gtk.c
         src/detection/gtk_qt/qt.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_android.c
         src/detection/host/host_android.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_nosupport.c
         src/detection/libc/libc_android.c
-        src/detection/lm/lm_nosupport.c
         src/detection/loadavg/loadavg_linux.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_nosupport.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/mouse/mouse_nosupport.c
         src/detection/netio/netio_linux.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_android.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_linux.c
-        src/detection/sound/sound_linux.c
         src/detection/swap/swap_linux.c
-        src/detection/terminalfont/terminalfont_android.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_linux.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_android.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_android.c
+        src/detection/media/media_linux.c
     )
 elseif(FreeBSD)
     list(APPEND LIBFASTFETCH_SRC
@@ -689,18 +540,11 @@ elseif(FreeBSD)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_bsd.c
-        src/detection/battery/battery_bsd.c
-        src/detection/bios/bios_bsd.c
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/board/board_bsd.c
-        src/detection/bootmgr/bootmgr_bsd.c
-        src/detection/brightness/brightness_bsd.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_bsd.c
         src/detection/cpu/cpu_bsd.c
         src/detection/cpucache/cpucache_shared.c
         src/detection/cpuusage/cpuusage_bsd.c
-        src/detection/cursor/cursor_linux.c
         src/detection/disk/disk_bsd.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_bsd.c
@@ -720,54 +564,34 @@ elseif(FreeBSD)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_bsd.c
-        src/detection/gpu/gpu_drm.c
-        src/detection/gpu/gpu_pci.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_bsd.c
-        src/detection/lm/lm_linux.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_bsd.c
         src/detection/libc/libc_bsd.c
         src/detection/loadavg/loadavg_bsd.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_bsd.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_bsd.c
-        src/detection/mouse/mouse_bsd.c
         src/detection/netio/netio_bsd.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_bsd.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_bsd.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_bsd.c
         src/detection/swap/swap_bsd.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_bsd.c
         src/detection/uptime/uptime_bsd.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_linux.c
+        src/detection/media/media_linux.c
     )
     if(DragonFly)
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/bluetooth/bluetooth_nosupport.c
             src/detection/wifi/wifi_nosupport.c
         )
     else()
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/bluetooth/bluetooth_bsd.c
             src/detection/wifi/wifi_bsd.c
         )
     endif()
@@ -782,19 +606,11 @@ elseif(NetBSD)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_nbsd.c
-        src/detection/battery/battery_nbsd.c
-        src/detection/bios/bios_nbsd.c
-        src/detection/bluetooth/bluetooth_bsd.c
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/board/board_nbsd.c
-        src/detection/bootmgr/bootmgr_bsd.c
-        src/detection/brightness/brightness_nbsd.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_nbsd.c
         src/detection/cpu/cpu_nbsd.c
         src/detection/cpucache/cpucache_shared.c
         src/detection/cpuusage/cpuusage_bsd.c
-        src/detection/cursor/cursor_linux.c
         src/detection/disk/disk_bsd.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_nbsd.c
@@ -814,45 +630,28 @@ elseif(NetBSD)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_nbsd.c
-        src/detection/gpu/gpu_pci.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_nbsd.c
-        src/detection/lm/lm_linux.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_nosupport.c
         src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_bsd.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_nosupport.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_nbsd.c
-        src/detection/mouse/mouse_nosupport.c
         src/detection/netio/netio_bsd.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_nbsd.c
         src/detection/packages/packages_nbsd.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_nbsd.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_nbsd.c
         src/detection/swap/swap_obsd.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_bsd.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_nbsd.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_linux.c
+        src/detection/media/media_linux.c
     )
 elseif(OpenBSD)
     list(APPEND LIBFASTFETCH_SRC
@@ -866,19 +665,11 @@ elseif(OpenBSD)
         src/common/impl/binary_linux.c
         src/common/impl/smbios.c
         src/common/impl/kmod_nosupport.c
-        src/detection/battery/battery_obsd.c
-        src/detection/bios/bios_windows.c
-        src/detection/bluetooth/bluetooth_nosupport.c
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/board/board_windows.c
-        src/detection/bootmgr/bootmgr_bsd.c
-        src/detection/brightness/brightness_obsd.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_windows.c
         src/detection/cpu/cpu_obsd.c
         src/detection/cpucache/cpucache_shared.c
         src/detection/cpuusage/cpuusage_bsd.c
-        src/detection/cursor/cursor_linux.c
         src/detection/disk/disk_bsd.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_obsd.c
@@ -898,45 +689,28 @@ elseif(OpenBSD)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_pci.c
-        src/detection/gpu/gpu_obsd.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_obsd.c
-        src/detection/lm/lm_nosupport.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_nosupport.c
         src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_bsd.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_nosupport.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_obsd.c
-        src/detection/mouse/mouse_nosupport.c
         src/detection/netio/netio_bsd.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_obsd.c
         src/detection/packages/packages_obsd.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_obsd.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_obsd.c
         src/detection/swap/swap_obsd.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_bsd.c
         src/detection/users/users_obsd.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_obsd.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_linux.c
+        src/detection/media/media_linux.c
     )
 elseif(APPLE)
     list(APPEND LIBFASTFETCH_SRC
@@ -951,73 +725,46 @@ elseif(APPLE)
         src/common/apple/cf_helpers.c
         src/common/apple/osascript.m
         src/common/apple/smc_temps.c
-        src/detection/battery/battery_apple.c
-        src/detection/bluetooth/bluetooth_apple.m
-        src/detection/bluetoothradio/bluetoothradio_apple.m
-        src/detection/bootmgr/bootmgr_apple.c
-        src/detection/brightness/brightness_apple.c
         src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_apple.c
         src/detection/cpucache/cpucache_apple.c
         src/detection/cpuusage/cpuusage_apple.c
-        src/detection/cursor/cursor_apple.m
         src/detection/disk/disk_bsd.c
         src/detection/dns/dns_apple.c
         src/detection/physicaldisk/physicaldisk_apple.c
         src/detection/diskio/diskio_apple.c
         src/detection/displayserver/displayserver_apple.c
-        src/detection/font/font_apple.m
-        src/detection/gpu/gpu_apple.c
-        src/detection/gpu/gpu_apple.m
         src/detection/icons/icons_nosupport.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_apple.c
-        src/detection/lm/lm_nosupport.c
         src/detection/loadavg/loadavg_bsd.c
         src/detection/libc/libc_apple.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_apple.c
-        src/detection/media/media_apple.m
         src/detection/memory/memory_apple.c
-        src/detection/mouse/mouse_apple.c
         src/detection/netio/netio_apple.c
-        src/detection/opengl/opengl_apple.c
         src/detection/os/os_apple.m
         src/detection/packages/packages_apple.c
         src/detection/packages/packages_nix.c
-        src/detection/poweradapter/poweradapter_apple.c
         src/detection/processes/processes_bsd.c
-        src/detection/sound/sound_apple.c
         src/detection/swap/swap_apple.c
-        src/detection/terminalfont/terminalfont_apple.m
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_apple.c
-        src/detection/tpm/tpm_apple.c
         src/detection/uptime/uptime_bsd.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_apple.m
         src/detection/wifi/wifi_apple.m
-        src/detection/wm/wm_apple.m
-        src/detection/de/de_nosupport.c
-        src/detection/wmtheme/wmtheme_apple.m
-        src/detection/camera/camera_apple.m
+        src/detection/media/media_apple.m
     )
     # CMAKE_SYSTEM_PROCESSOR has been normalized before
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "amd64")
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/bios/bios_windows.c
             src/detection/board/board_windows.c
-            src/detection/chassis/chassis_windows.c
             src/detection/host/host_windows.c
             src/detection/physicalmemory/physicalmemory_linux.c
         )
     else()
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/bios/bios_apple.c
             src/detection/board/board_apple.c
-            src/detection/chassis/chassis_apple.c
             src/detection/host/host_apple.c
             src/detection/physicalmemory/physicalmemory_apple.m
         )
@@ -1038,62 +785,37 @@ elseif(WIN32)
         src/common/windows/unicode.c
         src/common/windows/variant.cpp
         src/common/windows/version.c
-        src/detection/battery/battery_windows.c
-        src/detection/bios/bios_windows.c
-        src/detection/bluetooth/bluetooth_windows.c
-        src/detection/bluetoothradio/bluetoothradio_windows.c
         src/detection/board/board_windows.c
-        src/detection/bootmgr/bootmgr_windows.c
-        src/detection/brightness/brightness_windows.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_windows.c
         src/detection/cpu/cpu_windows.c
         src/detection/cpucache/cpucache_windows.c
         src/detection/cpuusage/cpuusage_windows.c
-        src/detection/cursor/cursor_windows.c
         src/detection/disk/disk_windows.c
         src/detection/physicaldisk/physicaldisk_windows.c
         src/detection/diskio/diskio_windows.c
         src/detection/displayserver/displayserver_windows.c
         src/detection/dns/dns_windows.c
-        src/detection/font/font_windows.c
-        src/detection/gpu/gpu_windows.c
-        src/detection/gpu/gpu_windows.cpp
         src/detection/host/host_windows.c
         src/detection/icons/icons_windows.c
         src/detection/initsystem/initsystem_nosupport.c
-        src/detection/keyboard/keyboard_windows.c
         src/detection/libc/libc_windows.cpp
-        src/detection/lm/lm_nosupport.c
         src/detection/loadavg/loadavg_nosupport.c
         src/detection/locale/locale_windows.c
         src/detection/localip/localip_windows.c
-        src/detection/gamepad/gamepad_windows.c
-        src/detection/media/media_windows.cpp
         src/detection/memory/memory_windows.c
-        src/detection/mouse/mouse_windows.c
         src/detection/physicalmemory/physicalmemory_linux.c
         src/detection/netio/netio_windows.c
-        src/detection/opengl/opengl_windows.c
         src/detection/os/os_windows.c
         src/detection/packages/packages_windows.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_windows.c
-        src/detection/sound/sound_windows.cpp
         src/detection/swap/swap_windows.c
-        src/detection/terminalfont/terminalfont_windows.c
         src/detection/terminalshell/terminalshell_windows.c
         src/detection/terminalsize/terminalsize_windows.c
-        src/detection/theme/theme_windows.c
-        src/detection/tpm/tpm_windows.c
         src/detection/uptime/uptime_windows.c
         src/detection/users/users_windows.c
         src/detection/wallpaper/wallpaper_windows.c
         src/detection/wifi/wifi_windows.c
-        src/detection/wm/wm_windows.c
-        src/detection/de/de_nosupport.c
-        src/detection/wmtheme/wmtheme_windows.c
-        src/detection/camera/camera_windows.cpp
+        src/detection/media/media_windows.c
     )
 elseif(SunOS)
     list(APPEND LIBFASTFETCH_SRC
@@ -1105,19 +827,11 @@ elseif(SunOS)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_sunos.c
-        src/detection/battery/battery_nosupport.c
-        src/detection/bios/bios_windows.c
         src/detection/board/board_windows.c
-        src/detection/bootmgr/bootmgr_nosupport.c
-        src/detection/brightness/brightness_nosupport.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_windows.c
         src/detection/cpu/cpu_sunos.c
         src/detection/cpucache/cpucache_shared.c
         src/detection/cpuusage/cpuusage_sunos.c
-        src/detection/cursor/cursor_linux.c
-        src/detection/bluetooth/bluetooth_nosupport.c
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/disk/disk_sunos.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_sunos.c
@@ -1137,45 +851,28 @@ elseif(SunOS)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_sunos.c
-        src/detection/gpu/gpu_pci.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_windows.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_nosupport.c
         src/detection/libc/libc_nosupport.c
-        src/detection/lm/lm_nosupport.c
         src/detection/loadavg/loadavg_sunos.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_nosupport.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_sunos.c
-        src/detection/mouse/mouse_nosupport.c
         src/detection/netio/netio_sunos.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_sunos.c
         src/detection/packages/packages_sunos.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_linux.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_sunos.c
         src/detection/swap/swap_sunos.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_sunos.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_nosupport.c
-        src/detection/wm/wm_nosupport.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_nosupport.c
+        src/detection/media/media_linux.c
     )
 elseif(Haiku)
     list(APPEND LIBFASTFETCH_SRC
@@ -1188,64 +885,39 @@ elseif(Haiku)
         src/common/impl/binary_linux.c
         src/common/impl/kmod_nosupport.c
         src/common/haiku/version.cpp
-        src/detection/battery/battery_haiku.c
-        src/detection/bios/bios_windows.c
         src/detection/board/board_windows.c
-        src/detection/bootmgr/bootmgr_nosupport.c
-        src/detection/brightness/brightness_nosupport.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_windows.c
         src/detection/cpu/cpu_haiku.c
         src/detection/cpucache/cpucache_shared.c
         src/detection/cpuusage/cpuusage_haiku.c
-        src/detection/cursor/cursor_nosupport.c
-        src/detection/bluetooth/bluetooth_haiku.cpp
-        src/detection/bluetoothradio/bluetoothradio_nosupport.c
         src/detection/disk/disk_haiku.cpp
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_haiku.c
         src/detection/physicalmemory/physicalmemory_linux.c
         src/detection/diskio/diskio_nosupport.c
         src/detection/displayserver/displayserver_haiku.cpp
-        src/detection/font/font_haiku.cpp
-        src/detection/gpu/gpu_haiku.c
-        src/detection/gpu/gpu_pci.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_windows.c
         src/detection/icons/icons_nosupport.c
         src/detection/initsystem/initsystem_haiku.c
-        src/detection/keyboard/keyboard_haiku.cpp
         src/detection/libc/libc_nosupport.c
-        src/detection/lm/lm_nosupport.c
         src/detection/loadavg/loadavg_nosupport.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_haiku.cpp
-        src/detection/media/media_linux.c
         src/detection/memory/memory_haiku.c
-        src/detection/mouse/mouse_haiku.cpp
         src/detection/netio/netio_haiku.cpp
-        src/detection/opengl/opengl_haiku.cpp
         src/detection/os/os_haiku.c
         src/detection/packages/packages_haiku.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_haiku.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_haiku.cpp
         src/detection/swap/swap_haiku.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_nosupport.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_haiku.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_nosupport.c
         src/detection/wifi/wifi_nosupport.c
-        src/detection/wm/wm_nosupport.c
-        src/detection/de/de_nosupport.c
-        src/detection/wmtheme/wmtheme_nosupport.c
-        src/detection/camera/camera_nosupport.c
+        src/detection/media/media_linux.c
     )
 elseif(GNU)
     list(APPEND LIBFASTFETCH_SRC
@@ -1257,19 +929,11 @@ elseif(GNU)
         src/common/impl/FFPlatform_unix.c
         src/common/impl/binary_linux.c
         src/common/impl/kmod_nosupport.c
-        src/detection/battery/battery_nosupport.c
-        src/detection/bios/bios_nosupport.c
         src/detection/board/board_nosupport.c
-        src/detection/bootmgr/bootmgr_nosupport.c
-        src/detection/brightness/brightness_nosupport.c
         src/detection/btrfs/btrfs_nosupport.c
-        src/detection/chassis/chassis_nosupport.c
         src/detection/cpu/cpu_linux.c
         src/detection/cpucache/cpucache_nosupport.c
         src/detection/cpuusage/cpuusage_linux.c
-        src/detection/cursor/cursor_linux.c
-        src/detection/bluetooth/bluetooth_linux.c
-        src/detection/bluetoothradio/bluetoothradio_linux.c
         src/detection/disk/disk_linux.c
         src/detection/dns/dns_linux.c
         src/detection/physicaldisk/physicaldisk_nosupport.c
@@ -1285,65 +949,36 @@ elseif(GNU)
         src/detection/displayserver/linux/wmde.c
         src/detection/displayserver/linux/xcb.c
         src/detection/displayserver/linux/xlib.c
-        src/detection/font/font_linux.c
-        src/detection/gpu/gpu_gnu.c
-        src/detection/gpu/gpu_pci.c
         src/detection/gtk_qt/gtk.c
         src/detection/host/host_nosupport.c
         src/detection/icons/icons_linux.c
         src/detection/initsystem/initsystem_linux.c
-        src/detection/keyboard/keyboard_nosupport.c
         src/detection/libc/libc_linux.c
-        src/detection/lm/lm_linux.c
         src/detection/loadavg/loadavg_linux.c
         src/detection/locale/locale_linux.c
         src/detection/localip/localip_linux.c
-        src/detection/gamepad/gamepad_nosupport.c
-        src/detection/media/media_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/mouse/mouse_nosupport.c
         src/detection/netio/netio_nosupport.c
-        src/detection/opengl/opengl_linux.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/poweradapter/poweradapter_nosupport.c
         src/detection/processes/processes_linux.c
         src/detection/gtk_qt/qt.c
-        src/detection/sound/sound_linux.c
         src/detection/swap/swap_linux.c
-        src/detection/terminalfont/terminalfont_linux.c
         src/detection/terminalshell/terminalshell_linux.c
         src/detection/terminalsize/terminalsize_linux.c
-        src/detection/theme/theme_linux.c
-        src/detection/tpm/tpm_nosupport.c
         src/detection/uptime/uptime_linux.c
         src/detection/users/users_linux.c
         src/detection/wallpaper/wallpaper_linux.c
         src/detection/wifi/wifi_nosupport.c
-        src/detection/wm/wm_linux.c
-        src/detection/de/de_linux.c
-        src/detection/wmtheme/wmtheme_linux.c
-        src/detection/camera/camera_nosupport.c
+        src/detection/media/media_linux.c
    )
 endif()
 
 # Proprietary GPU driver APIs
 if(LINUX OR FreeBSD OR WIN32)
-    list(APPEND LIBFASTFETCH_SRC src/detection/gpu/gpu_nvidia.c)
-    list(APPEND LIBFASTFETCH_SRC src/detection/gpu/gpu_mthreads.c)
 endif()
 if(WIN32)
-    list(APPEND LIBFASTFETCH_SRC src/detection/gpu/gpu_intel.c)
-    list(APPEND LIBFASTFETCH_SRC src/detection/gpu/gpu_amd.c)
-
-    include(CheckIncludeFileCXX)
-    CHECK_INCLUDE_FILE_CXX("winrt/Windows.Foundation.h" HAVE_WINRT)
-    if(HAVE_WINRT)
-        message(STATUS "WinRT headers are available, media detection will use WinRT APIs")
-    else()
-        message(STATUS "WinRT headers are NOT available, media detection will be disabled")
-    endif()
 endif()
 include(CheckFunctionExists)
 check_function_exists(wcwidth HAVE_WCWIDTH)
@@ -1516,14 +1151,6 @@ if(HAVE_PIPE2)
     target_compile_definitions(libfastfetch PUBLIC FF_HAVE_PIPE2)
 endif()
 
-if(NOT "${CUSTOM_PCI_IDS_PATH}" STREQUAL "")
-    message(STATUS "Custom file path of pci.ids: ${CUSTOM_PCI_IDS_PATH}")
-    target_compile_definitions(libfastfetch PRIVATE FF_CUSTOM_PCI_IDS_PATH=${CUSTOM_PCI_IDS_PATH})
-endif()
-if(NOT "${CUSTOM_AMDGPU_IDS_PATH}" STREQUAL "")
-    message(STATUS "Custom file path of amdgpu.ids: ${CUSTOM_AMDGPU_IDS_PATH}")
-    target_compile_definitions(libfastfetch PRIVATE FF_CUSTOM_AMDGPU_IDS_PATH=${CUSTOM_AMDGPU_IDS_PATH})
-endif()
 if(NOT "${CUSTOM_OS_RELEASE_PATH}" STREQUAL "")
     message(STATUS "Custom file path of os_release: ${CUSTOM_OS_RELEASE_PATH}")
     target_compile_definitions(libfastfetch PRIVATE FF_CUSTOM_OS_RELEASE_PATH=${CUSTOM_OS_RELEASE_PATH})
@@ -1582,10 +1209,6 @@ function(ff_lib_enable VARNAME PKGCONFIG_NAMES CMAKE_NAME)
     endforeach()
 endfunction()
 
-ff_lib_enable(VULKAN
-    "vulkan"
-    "Vulkan"
-)
 ff_lib_enable(WAYLAND
     "wayland-client"
     "WaylandClient"
@@ -1597,14 +1220,6 @@ ff_lib_enable(XCB_RANDR
 ff_lib_enable(XRANDR
     "xrandr"
     "XRandr"
-)
-ff_lib_enable(DRM
-    "libdrm"
-    "Libdrm"
-)
-ff_lib_enable(DRM_AMDGPU
-    "libdrm_amdgpu"
-    "Libdrm_Amdgpu"
 )
 ff_lib_enable(GIO
     "gio-2.0"
@@ -1642,37 +1257,6 @@ ff_lib_enable(CHAFA
     "chafa>=1.10"
     "Chafa"
 )
-ff_lib_enable(EGL
-    "egl"
-    "EGL"
-)
-if(NOT OpenBSD AND NOT NetBSD)
-    ff_lib_enable(GLX
-        "glx"
-        "GLX"
-    )
-else()
-    ff_lib_enable(GLX
-        "gl"
-        "GL"
-    )
-endif()
-ff_lib_enable(OPENCL
-    "OpenCL"
-    "OpenCL"
-)
-ff_lib_enable(FREETYPE
-    "freetype2"
-    "FreeType2"
-)
-ff_lib_enable(PULSE
-    "libpulse"
-    "Pulse"
-)
-ff_lib_enable(DDCUTIL
-    "ddcutil"
-    "Ddcutil"
-)
 ff_lib_enable(ELF
     "libelf"
     "libelf"
@@ -1685,12 +1269,6 @@ if(ENABLE_THREADS)
     endif()
 endif()
 
-if(ENABLE_EMBEDDED_PCIIDS)
-    target_compile_definitions(libfastfetch PRIVATE FF_HAVE_EMBEDDED_PCIIDS=1)
-endif()
-if(ENABLE_EMBEDDED_AMDGPUIDS)
-    target_compile_definitions(libfastfetch PRIVATE FF_HAVE_EMBEDDED_AMDGPUIDS=1)
-endif()
 if(ENABLE_LIBZFS)
     target_compile_definitions(libfastfetch PRIVATE FF_HAVE_LIBZFS=1)
 
@@ -1849,6 +1427,19 @@ target_link_libraries(libfastfetch
 target_compile_options(libfastfetch PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>)
 
+if(WIN32)
+    set(CMAKE_CXX_STANDARD 20)
+    include(CheckIncludeFileCXX)
+    CHECK_INCLUDE_FILE_CXX("winrt/Windows.Foundation.h" HAVE_WINRT)
+    if(HAVE_WINRT)
+        target_link_libraries(ffwinrt PRIVATE "RuntimeObject")
+        target_compile_definitions(ffwinrt PRIVATE WIN32_LEAN_AND_MEAN=1 WINRT_LEAN_AND_MEAN=1)
+        target_link_options(ffwinrt
+            PRIVATE "-static" # stdc++, winpthread, gcc_s, etc.
+        )
+    endif()
+    set(CMAKE_CXX_STANDARD 17)
+endif()
 if(FreeBSD)
     set(CMAKE_REQUIRED_INCLUDES "/usr/local/include" "/usr/include")
 endif()
