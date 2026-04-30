@@ -18,8 +18,17 @@
 #ifdef __linux__
     #include <linux/ethtool.h>
     #include <linux/sockios.h>
-    #include <linux/if.h>
     #include <linux/if_addr.h>
+    /* linux/if.h conflicts with net/if.h; define only the extra flags we need */
+    #ifndef IFF_LOWER_UP
+    #define IFF_LOWER_UP (1<<16)
+    #endif
+    #ifndef IFF_DORMANT
+    #define IFF_DORMANT  (1<<17)
+    #endif
+    #ifndef IFF_ECHO
+    #define IFF_ECHO     (1<<18)
+    #endif
 #endif
 
 #if __has_include(<netinet6/in6_var.h>)

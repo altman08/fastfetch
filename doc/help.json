@@ -852,7 +852,7 @@
         },
         {
             "long": "freq-ndigits",
-            "desc": "Set the number of decimal places to use when printing CPU/GPU frequency in GHz",
+            "desc": "Set the number of decimal places to use when printing CPU frequency in GHz",
             "arg": {
                 "type": "num",
                 "default": 2

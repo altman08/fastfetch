@@ -5,7 +5,6 @@
 #include "common/textModifier.h"
 #include "common/strutil.h"
 #include "detection/displayserver/displayserver.h"
-#include "detection/terminaltheme/terminaltheme.h"
 #include "logo/logo.h"
 
 #include <stdlib.h>
@@ -32,16 +31,6 @@ static void initState(FFstate* state) {
 
     ffPlatformInit(&state->platform);
     state->dynamicInterval = 0;
-
-    #if !FF_MODULE_DISABLE_TERMINALTHEME
-    {
-        // don't enable bright color if the terminal is in light mode
-        FFTerminalThemeResult result;
-        if (ffDetectTerminalTheme(&result, true /* forceEnv for performance */) && !result.bg.dark) {
-            state->terminalLightTheme = true;
-        }
-    }
-    #endif
 }
 
 static void defaultConfig(void) {
@@ -199,9 +188,6 @@ void ffListFeatures(void) {
 #if FF_HAVE_THREADS
         "threads\n"
 #endif
-#if FF_HAVE_VULKAN
-        "vulkan\n"
-#endif
 #if FF_HAVE_WAYLAND
         "wayland\n"
 #endif
@@ -210,9 +196,6 @@ void ffListFeatures(void) {
 #endif
 #if FF_HAVE_XRANDR
         "xrandr\n"
-#endif
-#if FF_HAVE_DRM
-        "drm\n"
 #endif
 #if FF_HAVE_GIO
         "gio\n"
@@ -244,24 +227,6 @@ void ffListFeatures(void) {
 #if FF_HAVE_RPM
         "rpm\n"
 #endif
-#if FF_HAVE_EGL
-        "egl\n"
-#endif
-#if FF_HAVE_GLX
-        "glx\n"
-#endif
-#if FF_HAVE_OPENCL
-        "opencl\n"
-#endif
-#if FF_HAVE_FREETYPE
-        "freetype\n"
-#endif
-#if FF_HAVE_PULSE
-        "libpulse\n"
-#endif
-#if FF_HAVE_DDCUTIL
-        "libddcutil\n"
-#endif
 #if FF_HAVE_ELF || __sun || (__FreeBSD__ && !__DragonFly__) || __OpenBSD__ || __NetBSD__
         "libelf\n"
 #endif
@@ -280,17 +245,11 @@ void ffListFeatures(void) {
 #if FF_USE_SYSTEM_YYJSON
         "System yyjson\n"
 #endif
-#if FF_HAVE_LINUX_VIDEODEV2
-        "linux/videodev2\n"
-#endif
-#if FF_HAVE_EMBEDDED_PCIIDS
-        "Embedded pciids\n"
-#endif
 #if FF_ENABLE_WCWIDTH
         "Embedded wcwidth\n"
 #endif
-#if FF_HAVE_WINRT
-        "WinRT headers\n"
+#if FF_HAVE_LINUX_WIRELESS
+        "linux/wireless\n"
 #endif
 #if FF_WIN81_COMPAT
         "Windows 8.1 Compatibility\n"

@@ -4,7 +4,6 @@
 #include "common/processing.h"
 #include "common/textModifier.h"
 #include "common/strutil.h"
-#include "detection/media/media.h"
 #include "detection/os/os.h"
 #include "detection/terminalshell/terminalshell.h"
 
@@ -460,17 +459,6 @@ static bool updateLogoPath(void) {
     if (ffStrbufEqualS(&options->source, "-")) { // stdin
         return true;
     }
-
-#if !FF_MODULE_DISABLE_MEDIA
-    if (ffStrbufIgnCaseEqualS(&options->source, "media-cover")) {
-        const FFMediaResult* media = ffDetectMedia(true);
-        if (media->cover.length == 0) {
-            return false;
-        }
-        ffStrbufSet(&options->source, &media->cover);
-        return true;
-    }
-#endif
 
     FF_STRBUF_AUTO_DESTROY fullPath = ffStrbufCreateA(128);
     if (ffPathExpandEnv(options->source.chars, &fullPath) && ffPathExists(fullPath.chars, FF_PATHTYPE_FILE)) {
