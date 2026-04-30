@@ -14,6 +14,27 @@
 
 #define FF_CPUINFO_PATH "/proc/cpuinfo"
 
+#ifdef FF_TARGET_ZTE_CAT
+static double zte_temperature_from_fd(int fd, FFstrbuf* buffer) {
+    ffStrbufClear(buffer);
+    if (!ffAppendFDBuffer(fd, buffer)) return FF_CPU_TEMP_UNSET;
+
+    const char* p = buffer->chars;
+    const char* end = buffer->chars + buffer->length;
+    while (p < end) {
+        const char* nl = memchr(p, '\n', (size_t) (end - p));
+        const char* line_end = nl ? nl : end;
+        if (memmem(p, (size_t) (line_end - p), "temper value:", strlen("temper value:"))) {
+            double temp = FF_CPU_TEMP_UNSET;
+            if (sscanf(p, "temper value: %lf", &temp) == 1)
+                return temp;
+        }
+        p = nl ? nl + 1 : end;
+    }
+    return FF_CPU_TEMP_UNSET;
+}
+#endif // FF_TARGET_ZTE_CAT
+
 static double readTempFile(int dfd, const char* filename, FFstrbuf* buffer) {
     if (filename ? !ffReadFileBufferRelative(dfd, filename, buffer) : !ffReadFDBuffer(dfd, buffer)) {
         return FF_CPU_TEMP_UNSET;
@@ -109,6 +130,16 @@ static double detectCPUTemp(const FFCPUOptions* options) {
         return readTempFile(subfd, fileName, &buffer);
     }
 
+#ifdef FF_TARGET_ZTE_CAT
+    {
+        FF_AUTO_CLOSE_FD int fd = open("/proc/tempsensor", O_RDONLY);
+        if (fd >= 0) {
+            double result = zte_temperature_from_fd(fd, &buffer);
+            if (result != FF_CPU_TEMP_UNSET)
+                return result;
+        }
+    }
+#endif // FF_TARGET_ZTE_CAT
     {
         FF_AUTO_CLOSE_DIR DIR* dirp = opendir("/sys/class/hwmon/");
         if (dirp) {
@@ -182,7 +213,6 @@ static double detectCPUTemp(const FFCPUOptions* options) {
             }
         }
     }
-
     return FF_CPU_TEMP_UNSET;
 }
 
@@ -945,6 +975,12 @@ FF_A_UNUSED static void detectSocName(FFCPUResult* cpu) {
         for (const char* p = model; *p; ++p) {
             ffStrbufAppendC(&cpu->name, (char) toupper(*p));
         }
+#ifdef FF_TARGET_ZTE_CAT
+    } else if (ffStrEquals(vendor, "zte")) {
+        ffStrbufSetStatic(&cpu->vendor, "ZTE");
+        ffStrbufSetS(&cpu->name, "ZX279");
+        ffStrbufAppendS(&cpu->name, model);
+#endif // FF_TARGET_ZTE_CAT
     } else {
         ffStrbufSetS(&cpu->name, model);
         ffStrbufSetS(&cpu->vendor, vendor);

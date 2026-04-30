@@ -179,7 +179,12 @@ static void platformPathAddEnv(FFlist* dirs, const char* env) {
 }
 
 static void getHomeDir(FFPlatform* platform, const struct passwd* pwd) {
+#ifdef FF_TARGET_ZTE_CAT
+    // ZTE光猫设备：passwd不可用，只能依赖$HOME环境变量
+    const char* home = getenv("HOME");
+#else
     const char* home = pwd ? pwd->pw_dir : getenv("HOME");
+#endif
     ffStrbufAppendS(&platform->homeDir, home);
     ffStrbufEnsureEndsWithC(&platform->homeDir, '/');
 }
