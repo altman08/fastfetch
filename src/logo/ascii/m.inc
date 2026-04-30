@@ -292,6 +292,18 @@ static const FFlogo M[] = {
         .colorTitle = FF_COLOR_FG_DEFAULT,
     },
     #endif
+    #ifdef FASTFETCH_DATATEXT_LOGO_MERLIN
+    // Merlin
+    {
+        .names = { "Merlin", "merlin" },
+        .lines = FASTFETCH_DATATEXT_LOGO_MERLIN,
+        .colors = {
+            FF_COLOR_FG_BLUE,
+        },
+        .colorKeys = FF_COLOR_FG_BLUE,
+        .colorTitle = FF_COLOR_FG_DEFAULT,
+    },
+    #endif
     #ifdef FASTFETCH_DATATEXT_LOGO_MIDNIGHTBSD
     // MidnightBSD
     {

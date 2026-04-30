@@ -4,6 +4,10 @@ Fastfetch 是一款类似 neofetch 的系统信息展示工具，主要用 C 编
 
 示例配置见 presets/examples，更多截图与平台说明见 Wiki。
 
+## 本版本修改说明
+
+精简了内置 Logo，仅保留常用发行版（Alpine、Arch、CentOS、Debian、Fastfetch、Fedora、Kali、Linux、Merlin、OpenWrt、Ubuntu），以减小二进制体积，适配嵌入式设备使用。
+
 ## 安装
 
 Linux（部分）：
