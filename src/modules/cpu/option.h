@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/option.h"
+#include "common/parsing.h"
 
 typedef struct FFCPUOptions {
     FFModuleArgs moduleArgs;

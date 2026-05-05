@@ -133,12 +133,9 @@ static bool parseModuleJsonObject(const char* type, yyjson_val* jsonVal, yyjson_
 
 static void prepareModuleJsonObject(const char* type, yyjson_val* module) {
     switch (type[0]) {
-        #if !FF_MODULE_DISABLE_CPUUSAGE
         case 'c':
         case 'C': {
-            if (ffStrEqualsIgnCase(type, FF_CPUUSAGE_MODULE_NAME)) {
-                ffPrepareCPUUsage();
-            } else if (ffStrEqualsIgnCase(type, FF_COMMAND_MODULE_NAME)) {
+            if (ffStrEqualsIgnCase(type, FF_COMMAND_MODULE_NAME)) {
                 FF_A_CLEANUP(ffDestroyCommandOptions) FFCommandOptions options;
                 ffInitCommandOptions(&options);
                 if (module) {
@@ -148,67 +145,6 @@ static void prepareModuleJsonObject(const char* type, yyjson_val* module) {
             }
             break;
         }
-        #endif
-
-        #if !FF_MODULE_DISABLE_DISKIO
-        case 'd':
-        case 'D': {
-            if (ffStrEqualsIgnCase(type, FF_DISKIO_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyDiskIOOptions) FFDiskIOOptions options;
-                ffInitDiskIOOptions(&options);
-                if (module) {
-                    ffDiskIOModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareDiskIO(&options);
-            }
-            break;
-        }
-        #endif
-
-        #if !FF_MODULE_DISABLE_NETIO
-        case 'n':
-        case 'N': {
-            if (ffStrEqualsIgnCase(type, FF_NETIO_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyNetIOOptions) FFNetIOOptions options;
-                ffInitNetIOOptions(&options);
-                if (module) {
-                    ffNetIOModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareNetIO(&options);
-            }
-            break;
-        }
-        #endif
-
-        #if !FF_MODULE_DISABLE_PUBLICIP
-        case 'p':
-        case 'P': {
-            if (ffStrEqualsIgnCase(type, FF_PUBLICIP_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyPublicIpOptions) FFPublicIPOptions options;
-                ffInitPublicIpOptions(&options);
-                if (module) {
-                    ffPublicIPModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPreparePublicIp(&options);
-            }
-            break;
-        }
-        #endif
-
-        #if !FF_MODULE_DISABLE_WEATHER
-        case 'w':
-        case 'W': {
-            if (ffStrEqualsIgnCase(type, FF_WEATHER_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyWeatherOptions) FFWeatherOptions options;
-                ffInitWeatherOptions(&options);
-                if (module) {
-                    ffWeatherModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareWeather(&options);
-            }
-            break;
-        }
-        #endif
     }
 }
 
@@ -336,7 +272,7 @@ static const char* printJsonConfig(FFdata* data, bool prepare) {
                                                                                                                      : FF_COLOR_FG_RED),
                         ms);
                 }
-                printf("\e7\e[1A\e[9999999C\e[%dD%s\e8", len - 1, str); // Save; Up 1; Right 9999999; Left <len - 1>; Print <str>; Load
+                printf("\e7\e[1A\e[9999999C\e[%dD%s\e8", len, str); // Save; Up 1; Right 9999999; Left <len>; Print <str>; Load
             }
         }
 

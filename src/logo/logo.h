@@ -39,6 +39,3 @@ const FFlogo* ffLogoGetBuiltinDetected(FFLogoSize size);
 // builtin.c
 extern const FFlogo* ffLogoBuiltins[];
 extern const FFlogo ffLogoUnknown;
-
-// image/image.c
-bool ffLogoPrintImageIfExists(FFLogoType type, bool printError);

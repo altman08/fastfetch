@@ -30,53 +30,52 @@ fastfetch --list-logos
 
 ### 精简模块
 
-移除不需要的功能模块及其底层检测逻辑，当前保留 43 个模块：
+移除不需要的功能模块及其底层检测逻辑，当前保留 16 个模块：
 
 | # | 模块 | 说明 |
 |---|------|------|
 | 1 | Board | 主板名称及信息 |
 | 2 | Break | 输出空行 |
-| 3 | Btrfs | Linux BTRFS 卷信息 |
-| 4 | Command | 执行自定义 Shell 脚本 |
-| 5 | Colors | 显示终端 16 色色板 |
-| 6 | CPU | CPU 名称、频率等 |
-| 7 | CPUCache | CPU 缓存大小 |
-| 8 | CPUUsage | CPU 使用率 |
-| 9 | Custom | 输出自定义字符串 |
-| 10 | DateTime | 当前日期时间 |
-| 11 | Display | 分辨率、刷新率等 |
-| 12 | Disk | 分区、磁盘空间、文件系统等 |
-| 13 | DiskIO | 物理磁盘 I/O 吞吐量 |
-| 14 | DNS | 已配置的 DNS 服务器 |
-| 15 | Editor | 默认编辑器信息 |
-| 16 | Host | 计算机产品名称 |
-| 17 | Icons | 图标主题名称 |
-| 18 | InitSystem | Init 系统（PID 1）名称及版本 |
-| 19 | Kernel | 系统内核版本 |
-| 20 | Loadavg | 系统负载均值 |
-| 21 | Locale | 系统语言区域设置 |
-| 22 | LocalIp | 本地 IP / MAC 地址等 |
-| 23 | Logo | JSON 输出内置 Logo |
-| 24 | Memory | 系统内存使用情况 |
-| 25 | NetIO | 网络 I/O 吞吐量 |
-| 26 | OS | 操作系统 / Linux 发行版名称及版本 |
-| 27 | Packages | 包管理器及已安装包数量 |
-| 28 | PhysicalDisk | 物理磁盘信息 |
-| 29 | PhysicalMemory | 物理内存设备信息 |
-| 30 | Processes | 运行中进程数量 |
-| 31 | PublicIp | 公网 IP 地址及相关信息 |
-| 32 | Separator | 输出分隔线 |
-| 33 | Shell | 当前 Shell 名称及版本 |
-| 34 | Swap | 交换空间使用情况 |
-| 35 | Terminal | 当前终端名称及版本 |
-| 36 | TerminalSize | 当前终端尺寸 |
-| 37 | Title | 用户名与主机名标题 |
-| 38 | Uptime | 系统运行时长 |
-| 39 | Users | 当前登录用户 |
-| 40 | Version | Fastfetch 版本及构建信息 |
-| 41 | Wallpaper | 当前壁纸文件路径 |
-| 42 | Weather | 天气信息 |
-| 43 | Wifi | 已连接 Wi-Fi 信息 |
+| 3 | Command | 执行自定义 Shell 脚本 |
+| 4 | Colors | 显示终端 16 色色板 |
+| 5 | CPU | CPU 名称、频率等 |
+| 6 | Custom | 输出自定义字符串 |
+| 7 | DateTime | 当前日期时间 |
+| 8 | Disk | 分区、磁盘空间、文件系统等 |
+| 9 | Kernel | 系统内核版本 |
+| 10 | Loadavg | 系统负载均值 |
+| 11 | Memory | 系统内存使用情况 |
+| 12 | OS | 操作系统 / Linux 发行版名称及版本 |
+| 13 | Packages | 包管理器及已安装包数量 |
+| 14 | Separator | 输出分隔线 |
+| 15 | Title | 用户名与主机名标题 |
+| 16 | Uptime | 系统运行时长 |
+
+### 精简依赖库
+
+在 CMakeLists.txt 中禁用嵌入式设备不需要的可选库：
+
+| 库 | 状态 | 原因 |
+|----|------|------|
+| wayland-client | 禁用 | Display 模块已移除 |
+| xcb-randr | 禁用 | Display 模块已移除 |
+| xrandr | 禁用 | Display 模块已移除 |
+| dbus-1 | 禁用 | 相关模块（Wallpaper/Icons/Editor）已移除 |
+| libelf | 禁用 | ELF 二进制解析模块已移除 |
+
+### 精简底层公共模块
+
+移除以下不再使用的公共实现文件：
+
+- `edidHelper`（EDID 显示器信息解析）
+- `font`（字体检测）
+- `base64`（Base64 编解码）
+- `binary`（ELF 二进制解析，全平台）
+- `kmod`（内核模块加载，全平台）
+
+### Logo 图像功能精简
+
+移除所有图像类型 Logo 显示功能（sixel / kitty / iterm / chafa / raw），仅保留 ASCII 文字 Logo。
 
 ## 安装
 

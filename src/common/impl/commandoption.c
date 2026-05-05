@@ -64,67 +64,7 @@ bool ffParseModuleOptions(const char* key, const char* value) {
 }
 
 void ffPrepareCommandOption(FFdata* data) {
-    char* moduleType = NULL;
-    size_t moduleLen = 0;
-    while (ffStrbufGetdelim(&moduleType, &moduleLen, ':', &data->structure)) {
-#define FF_IF_MODULE_MATCH(moduleNameConstant) if (moduleLen == strlen(moduleNameConstant) && ffStrEqualsIgnCase(moduleType, moduleNameConstant) && !ffStrbufSeparatedContainIgnCaseS(&data->structureDisabled, moduleNameConstant, ':'))
-
-        switch (moduleType[0]) {
-            #if !FF_MODULE_DISABLE_CPUUSAGE
-            case 'C':
-            case 'c':
-                FF_IF_MODULE_MATCH(FF_CPUUSAGE_MODULE_NAME)
-                ffPrepareCPUUsage();
-                break;
-            #endif
-
-            #if !FF_MODULE_DISABLE_DISKIO
-            case 'D':
-            case 'd':
-                FF_IF_MODULE_MATCH(FF_DISKIO_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyDiskIOOptions) FFDiskIOOptions options;
-                    ffInitDiskIOOptions(&options);
-                    ffPrepareDiskIO(&options);
-                }
-                break;
-            #endif
-
-            #if !FF_MODULE_DISABLE_NETIO
-            case 'N':
-            case 'n':
-                FF_IF_MODULE_MATCH(FF_NETIO_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyNetIOOptions) FFNetIOOptions options;
-                    ffInitNetIOOptions(&options);
-                    ffPrepareNetIO(&options);
-                }
-                break;
-            #endif
-
-            #if !FF_MODULE_DISABLE_PUBLICIP
-            case 'P':
-            case 'p':
-                FF_IF_MODULE_MATCH(FF_PUBLICIP_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyPublicIpOptions) FFPublicIPOptions options;
-                    ffInitPublicIpOptions(&options);
-                    ffPreparePublicIp(&options);
-                }
-                break;
-            #endif
-
-            #if !FF_MODULE_DISABLE_WEATHER
-            case 'W':
-            case 'w':
-                FF_IF_MODULE_MATCH(FF_WEATHER_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyWeatherOptions) FFWeatherOptions options;
-                    ffInitWeatherOptions(&options);
-                    ffPrepareWeather(&options);
-                }
-                break;
-            #endif
-        }
-
-#undef FF_IF_MODULE_MATCH
-    }
+    (void) data;
 }
 
 static void genJsonConfig(FFdata* data, FFModuleBaseInfo* baseInfo, void* options) {
@@ -188,7 +128,7 @@ static bool parseStructureCommand(
         }
     }
 
-    if (data->resultDoc) {
+    if (fn == genJsonResult) {
         yyjson_mut_doc* doc = data->resultDoc;
         yyjson_mut_val* module = yyjson_mut_arr_add_obj(doc, doc->root);
         yyjson_mut_obj_add_str(doc, module, "type", line);
@@ -231,7 +171,7 @@ void ffPrintCommandOption(FFdata* data) {
                                                                                                                      : FF_COLOR_FG_RED),
                         ms);
                 }
-                printf("\e7\e[1A\e[9999999C\e[%dD%s\e8", len - 1, str); // Save; Up 1; Right 9999999; Left <len - 1>; Print <str>; Load
+                printf("\e7\e[1A\e[9999999C\e[%dD%s\e8", len, str); // Save; Up 1; Right 9999999; Left <len>; Print <str>; Load
             }
         }
 

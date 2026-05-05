@@ -39,10 +39,6 @@ int main(void) {
         ffPrintOS(&options);
     }
     {
-        MODULE_OPTION(Host)
-        ffPrintHost(&options);
-    }
-    {
         MODULE_OPTION(Kernel)
         ffStrbufSetStatic(&options.moduleArgs.outputFormat, "{release}");
         ffPrintKernel(&options);
@@ -55,24 +51,6 @@ int main(void) {
         MODULE_OPTION(Packages)
         options.combined = true;
         ffPrintPackages(&options);
-    }
-    {
-        MODULE_OPTION(Shell)
-        ffPrintShell(&options);
-    }
-    {
-        MODULE_OPTION(Display)
-        options.compactType = FF_DISPLAY_COMPACT_TYPE_ORIGINAL_BIT;
-        ffStrbufSetStatic(&options.moduleArgs.key, "Resolution");
-        ffPrintDisplay(&options);
-    }
-    {
-        MODULE_OPTION(Icons)
-        ffPrintIcons(&options);
-    }
-    {
-        MODULE_OPTION(Terminal)
-        ffPrintTerminal(&options);
     }
     {
         MODULE_OPTION(CPU)
