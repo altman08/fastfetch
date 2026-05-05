@@ -3,7 +3,6 @@
 #include "common/parsing.h"
 #include "common/thread.h"
 #include "common/textModifier.h"
-#include "detection/displayserver/displayserver.h"
 #include "logo/logo.h"
 
 #include <stdlib.h>
@@ -188,18 +187,6 @@ void ffListFeatures(void) {
 #endif
 #if FF_HAVE_DBUS
         "dbus\n"
-#endif
-#if FF_HAVE_IMAGEMAGICK7
-        "imagemagick7\n"
-#endif
-#if FF_HAVE_IMAGEMAGICK6
-        "imagemagick6\n"
-#endif
-#if FF_HAVE_CHAFA
-        "chafa\n"
-#endif
-#if FF_HAVE_ZLIB
-        "zlib\n"
 #endif
 #if FF_HAVE_SQLITE3
         "sqlite3\n"

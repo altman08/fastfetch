@@ -69,21 +69,17 @@ include(CheckIncludeFile)
 
 include(CMakeDependentOption)
 
-cmake_dependent_option(ENABLE_WAYLAND "Enable wayland-client" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR GNU" OFF)
-cmake_dependent_option(ENABLE_XCB_RANDR "Enable xcb-randr" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_XRANDR "Enable xrandr" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
+cmake_dependent_option(ENABLE_WAYLAND "Enable wayland-client" OFF "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR GNU" OFF)
+cmake_dependent_option(ENABLE_XCB_RANDR "Enable xcb-randr" OFF "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
+cmake_dependent_option(ENABLE_XRANDR "Enable xrandr" OFF "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_GIO "Enable gio-2.0" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_DCONF "Enable dconf" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_DBUS "Enable dbus-1" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR Haiku OR GNU" OFF)
+cmake_dependent_option(ENABLE_DBUS "Enable dbus-1" OFF "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR ANDROID OR SunOS OR Haiku OR GNU" OFF)
 cmake_dependent_option(ENABLE_SQLITE3 "Enable sqlite3" ON "LINUX OR FreeBSD OR APPLE OR OpenBSD OR NetBSD OR SunOS OR GNU" OFF)
 cmake_dependent_option(ENABLE_RPM "Enable rpm" ON "LINUX OR GNU" OFF)
-cmake_dependent_option(ENABLE_IMAGEMAGICK7 "Enable imagemagick 7" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR APPLE OR ANDROID OR WIN32 OR SunOS OR Haiku OR GNU" OFF)
-cmake_dependent_option(ENABLE_IMAGEMAGICK6 "Enable imagemagick 6" ON "LINUX OR FreeBSD OR OpenBSD OR NetBSD OR APPLE OR SunOS OR GNU" OFF)
-cmake_dependent_option(ENABLE_CHAFA "Enable chafa" ON "ENABLE_IMAGEMAGICK6 OR ENABLE_IMAGEMAGICK7" OFF)
-cmake_dependent_option(ENABLE_ELF "Enable libelf" ON "LINUX OR ANDROID OR DragonFly OR Haiku OR GNU" OFF)
+cmake_dependent_option(ENABLE_ELF "Enable libelf" OFF "LINUX OR ANDROID OR DragonFly OR Haiku OR GNU" OFF)
 cmake_dependent_option(ENABLE_THREADS "Enable multithreading" ON "Threads_FOUND" OFF)
 
-option(ENABLE_ZLIB "Enable zlib" ON)
 option(ENABLE_SYSTEM_YYJSON "Use system provided (instead of fastfetch embedded) yyjson library" OFF)
 option(ENABLE_ASAN "Build fastfetch with ASAN (address sanitizer)" OFF)
 option(ENABLE_LTO "Enable link-time optimization in release mode if supported" ON)
@@ -327,14 +323,12 @@ file(GENERATE OUTPUT logo_builtin.h CONTENT "${LOGO_BUILTIN_H}")
 set(LIBFASTFETCH_SRC
     src/common/impl/commandoption.c
     src/common/impl/duration.c
-    src/common/impl/font.c
     src/common/impl/format.c
     src/common/impl/frequency.c
     src/common/impl/init.c
     src/common/impl/jsonconfig.c
     src/common/impl/library.c
     src/common/impl/netif.c
-    src/common/impl/networking_common.c
     src/common/impl/option.c
     src/common/impl/parsing.c
     src/common/impl/percent.c
@@ -344,78 +338,35 @@ set(LIBFASTFETCH_SRC
     src/common/impl/size.c
     src/common/impl/temps.c
     src/common/impl/time.c
-    src/common/impl/edidHelper.c
-    src/common/impl/base64.c
     src/common/impl/FFlist.c
     src/common/impl/FFstrbuf.c
     src/common/impl/path.c
     src/common/impl/FFPlatform.c
     src/common/impl/smbios.c
     src/detection/cpu/cpu.c
-    src/detection/cpuusage/cpuusage.c
     src/detection/command/command.c
     src/detection/disk/disk.c
-    src/detection/diskio/diskio.c
-    src/detection/displayserver/displayserver.c
-    src/detection/editor/editor.c
-    src/detection/host/host_mac.c
-    src/detection/media/media.c
-    src/detection/netio/netio.c
+    src/detection/version/version.c
     src/detection/os/os.c
     src/detection/packages/packages.c
-    src/detection/physicalmemory/physicalmemory.c
-    src/detection/publicip/publicip.c
-    src/detection/terminalshell/terminalshell.c
-    src/detection/version/version.c
-    src/detection/weather/weather.c
     src/logo/builtin.c
-    src/logo/image/im6.c
-    src/logo/image/im7.c
-    src/logo/image/image.c
     src/logo/logo.c
     src/modules/board/board.c
     src/modules/break/break.c
-    src/modules/btrfs/btrfs.c
     src/modules/colors/colors.c
     src/modules/cpu/cpu.c
-    src/modules/cpucache/cpucache.c
-    src/modules/cpuusage/cpuusage.c
     src/modules/custom/custom.c
     src/modules/command/command.c
     src/modules/datetime/datetime.c
     src/modules/disk/disk.c
-    src/modules/diskio/diskio.c
-    src/modules/dns/dns.c
-    src/modules/editor/editor.c
-    src/modules/host/host.c
-    src/modules/icons/icons.c
-    src/modules/initsystem/initsystem.c
     src/modules/kernel/kernel.c
     src/modules/loadavg/loadavg.c
-    src/modules/locale/locale.c
-    src/modules/localip/localip.c
-    src/modules/logo/logo.c
     src/modules/memory/memory.c
-    src/modules/netio/netio.c
     src/modules/os/os.c
     src/modules/packages/packages.c
-    src/modules/physicaldisk/physicaldisk.c
-    src/modules/physicalmemory/physicalmemory.c
-    src/modules/processes/processes.c
-    src/modules/publicip/publicip.c
-    src/modules/display/display.c
     src/modules/separator/separator.c
-    src/modules/shell/shell.c
-    src/modules/swap/swap.c
-    src/modules/terminal/terminal.c
-    src/modules/terminalsize/terminalsize.c
     src/modules/title/title.c
     src/modules/uptime/uptime.c
-    src/modules/users/users.c
-    src/modules/version/version.c
-    src/modules/wallpaper/wallpaper.c
-    src/modules/weather/weather.c
-    src/modules/wifi/wifi.c
     src/modules/modules.c
     src/options/display.c
     src/options/logo.c
@@ -427,172 +378,57 @@ if(LINUX)
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_linux.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_linux.c
         src/detection/board/board_linux.c
-        src/detection/btrfs/btrfs_linux.c
         src/detection/cpu/cpu_linux.c
-        src/detection/cpucache/cpucache_linux.c
-        src/detection/cpuusage/cpuusage_linux.c
         src/detection/disk/disk_linux.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_linux.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_linux.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/kde-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-device-v2-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-order-v1-protocol.c
-        src/detection/displayserver/linux/wayland/xdg-output-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_linux.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_linux.c
         src/detection/loadavg/loadavg_linux.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/netio/netio_linux.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/processes/processes_linux.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_linux.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_linux.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_linux.c
-        src/detection/media/media_linux.c
     )
 elseif(ANDROID)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_linux.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_linux.c
         src/detection/board/board_android.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_linux.c
-        src/detection/cpucache/cpucache_linux.c
-        src/detection/cpuusage/cpuusage_linux.c
         src/detection/disk/disk_linux.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_linux.c
-        src/detection/physicalmemory/physicalmemory_nosupport.c
-        src/detection/diskio/diskio_linux.c
-        src/detection/displayserver/displayserver_android.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/gtk_qt/qt.c
-        src/detection/host/host_android.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_android.c
         src/detection/loadavg/loadavg_linux.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/netio/netio_linux.c
         src/detection/os/os_android.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/processes/processes_linux.c
-        src/detection/swap/swap_linux.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_linux.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_android.c
-        src/detection/media/media_linux.c
     )
 elseif(FreeBSD)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_bsd.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/sysctl.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_bsd.c
         src/detection/board/board_bsd.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_bsd.c
-        src/detection/cpucache/cpucache_shared.c
-        src/detection/cpuusage/cpuusage_bsd.c
         src/detection/disk/disk_bsd.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_bsd.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_bsd.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/kde-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-device-v2-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-order-v1-protocol.c
-        src/detection/displayserver/linux/wayland/xdg-output-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_bsd.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_bsd.c
         src/detection/loadavg/loadavg_bsd.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_bsd.c
-        src/detection/netio/netio_bsd.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_bsd.c
-        src/detection/processes/processes_bsd.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_bsd.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_bsd.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/media/media_linux.c
     )
     if(DragonFly)
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/wifi/wifi_nosupport.c
         )
     else()
         list(APPEND LIBFASTFETCH_SRC
-            src/detection/wifi/wifi_bsd.c
         )
     endif()
 elseif(NetBSD)
@@ -600,185 +436,72 @@ elseif(NetBSD)
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_bsd.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/sysctl.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_nbsd.c
         src/detection/board/board_nbsd.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_nbsd.c
-        src/detection/cpucache/cpucache_shared.c
-        src/detection/cpuusage/cpuusage_bsd.c
         src/detection/disk/disk_bsd.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_nbsd.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_nbsd.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/kde-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-device-v2-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-order-v1-protocol.c
-        src/detection/displayserver/linux/wayland/xdg-output-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_nbsd.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_bsd.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_nbsd.c
-        src/detection/netio/netio_bsd.c
         src/detection/os/os_nbsd.c
         src/detection/packages/packages_nbsd.c
-        src/detection/processes/processes_nbsd.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_obsd.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_bsd.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_nbsd.c
-        src/detection/media/media_linux.c
     )
 elseif(OpenBSD)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_bsd.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/sysctl.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
         src/common/impl/smbios.c
-        src/common/impl/kmod_nosupport.c
         src/detection/board/board_windows.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_obsd.c
-        src/detection/cpucache/cpucache_shared.c
-        src/detection/cpuusage/cpuusage_bsd.c
         src/detection/disk/disk_bsd.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_obsd.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_obsd.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/kde-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-device-v2-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-order-v1-protocol.c
-        src/detection/displayserver/linux/wayland/xdg-output-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_obsd.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_bsd.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_obsd.c
-        src/detection/netio/netio_bsd.c
         src/detection/os/os_obsd.c
         src/detection/packages/packages_obsd.c
-        src/detection/processes/processes_obsd.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_obsd.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_bsd.c
-        src/detection/users/users_obsd.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_obsd.c
-        src/detection/media/media_linux.c
     )
 elseif(APPLE)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/io_unix.c
         src/common/impl/netif_apple.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/sysctl.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_apple.c
-        src/common/impl/kmod_apple.c
         src/common/apple/cf_helpers.c
         src/common/apple/osascript.m
         src/common/apple/smc_temps.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_apple.c
-        src/detection/cpucache/cpucache_apple.c
-        src/detection/cpuusage/cpuusage_apple.c
         src/detection/disk/disk_bsd.c
-        src/detection/dns/dns_apple.c
-        src/detection/physicaldisk/physicaldisk_apple.c
-        src/detection/diskio/diskio_apple.c
-        src/detection/displayserver/displayserver_apple.c
-        src/detection/icons/icons_nosupport.c
-        src/detection/initsystem/initsystem_linux.c
         src/detection/loadavg/loadavg_bsd.c
-        src/detection/libc/libc_apple.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_apple.c
-        src/detection/netio/netio_apple.c
         src/detection/os/os_apple.m
         src/detection/packages/packages_apple.c
         src/detection/packages/packages_nix.c
-        src/detection/processes/processes_bsd.c
-        src/detection/swap/swap_apple.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_bsd.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_apple.m
-        src/detection/wifi/wifi_apple.m
-        src/detection/media/media_apple.m
     )
     # CMAKE_SYSTEM_PROCESSOR has been normalized before
     if(CMAKE_SYSTEM_PROCESSOR STREQUAL "amd64")
         list(APPEND LIBFASTFETCH_SRC
             src/detection/board/board_windows.c
-            src/detection/host/host_windows.c
-            src/detection/physicalmemory/physicalmemory_linux.c
         )
     else()
         list(APPEND LIBFASTFETCH_SRC
             src/detection/board/board_apple.c
-            src/detection/host/host_apple.c
-            src/detection/physicalmemory/physicalmemory_apple.m
         )
     endif()
 elseif(WIN32)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/io_windows.c
         src/common/impl/netif_windows.c
-        src/common/impl/networking_windows.c
         src/common/impl/processing_windows.c
         src/common/impl/FFPlatform_windows.c
-        src/common/impl/binary_windows.c
         src/common/impl/debug_windows.c
-        src/common/impl/kmod_windows.c
         src/common/windows/getline.c
         src/common/windows/com.cpp
         src/common/windows/registry.c
@@ -786,192 +509,63 @@ elseif(WIN32)
         src/common/windows/variant.cpp
         src/common/windows/version.c
         src/detection/board/board_windows.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_windows.c
-        src/detection/cpucache/cpucache_windows.c
-        src/detection/cpuusage/cpuusage_windows.c
         src/detection/disk/disk_windows.c
-        src/detection/physicaldisk/physicaldisk_windows.c
-        src/detection/diskio/diskio_windows.c
-        src/detection/displayserver/displayserver_windows.c
-        src/detection/dns/dns_windows.c
-        src/detection/host/host_windows.c
-        src/detection/icons/icons_windows.c
-        src/detection/initsystem/initsystem_nosupport.c
-        src/detection/libc/libc_windows.cpp
         src/detection/loadavg/loadavg_nosupport.c
-        src/detection/locale/locale_windows.c
-        src/detection/localip/localip_windows.c
         src/detection/memory/memory_windows.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/netio/netio_windows.c
         src/detection/os/os_windows.c
         src/detection/packages/packages_windows.c
-        src/detection/processes/processes_windows.c
-        src/detection/swap/swap_windows.c
-        src/detection/terminalshell/terminalshell_windows.c
-        src/detection/terminalsize/terminalsize_windows.c
         src/detection/uptime/uptime_windows.c
-        src/detection/users/users_windows.c
-        src/detection/wallpaper/wallpaper_windows.c
-        src/detection/wifi/wifi_windows.c
-        src/detection/media/media_windows.c
     )
 elseif(SunOS)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_apple.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_sunos.c
         src/detection/board/board_windows.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_sunos.c
-        src/detection/cpucache/cpucache_shared.c
-        src/detection/cpuusage/cpuusage_sunos.c
         src/detection/disk/disk_sunos.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_sunos.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_sunos.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/kde-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-device-v2-protocol.c
-        src/detection/displayserver/linux/wayland/kde-output-order-v1-protocol.c
-        src/detection/displayserver/linux/wayland/xdg-output-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_windows.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_sunos.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_sunos.c
-        src/detection/netio/netio_sunos.c
         src/detection/os/os_sunos.c
         src/detection/packages/packages_sunos.c
-        src/detection/processes/processes_linux.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_sunos.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_sunos.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_nosupport.c
-        src/detection/media/media_linux.c
     )
 elseif(Haiku)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_haiku.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_nosupport.c
         src/common/haiku/version.cpp
         src/detection/board/board_windows.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_haiku.c
-        src/detection/cpucache/cpucache_shared.c
-        src/detection/cpuusage/cpuusage_haiku.c
         src/detection/disk/disk_haiku.cpp
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_haiku.c
-        src/detection/physicalmemory/physicalmemory_linux.c
-        src/detection/diskio/diskio_nosupport.c
-        src/detection/displayserver/displayserver_haiku.cpp
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_windows.c
-        src/detection/icons/icons_nosupport.c
-        src/detection/initsystem/initsystem_haiku.c
-        src/detection/libc/libc_nosupport.c
         src/detection/loadavg/loadavg_nosupport.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_haiku.c
-        src/detection/netio/netio_haiku.cpp
         src/detection/os/os_haiku.c
         src/detection/packages/packages_haiku.c
-        src/detection/processes/processes_haiku.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_haiku.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_haiku.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_nosupport.c
-        src/detection/wifi/wifi_nosupport.c
-        src/detection/media/media_linux.c
     )
 elseif(GNU)
     list(APPEND LIBFASTFETCH_SRC
         src/common/impl/dbus.c
         src/common/impl/io_unix.c
         src/common/impl/netif_gnu.c
-        src/common/impl/networking_linux.c
         src/common/impl/processing_linux.c
         src/common/impl/FFPlatform_unix.c
-        src/common/impl/binary_linux.c
-        src/common/impl/kmod_nosupport.c
         src/detection/board/board_nosupport.c
-        src/detection/btrfs/btrfs_nosupport.c
         src/detection/cpu/cpu_linux.c
-        src/detection/cpucache/cpucache_nosupport.c
-        src/detection/cpuusage/cpuusage_linux.c
         src/detection/disk/disk_linux.c
-        src/detection/dns/dns_linux.c
-        src/detection/physicaldisk/physicaldisk_nosupport.c
-        src/detection/physicalmemory/physicalmemory_nosupport.c
-        src/detection/diskio/diskio_nosupport.c
-        src/detection/displayserver/linux/displayserver_linux.c
-        src/detection/displayserver/linux/common.c
-        src/detection/displayserver/linux/drm.c
-        src/detection/displayserver/linux/wayland/wayland.c
-        src/detection/displayserver/linux/wayland/global-output.c
-        src/detection/displayserver/linux/wayland/zwlr-output.c
-        src/detection/displayserver/linux/wayland/wlr-output-management-unstable-v1-protocol.c
-        src/detection/displayserver/linux/wmde.c
-        src/detection/displayserver/linux/xcb.c
-        src/detection/displayserver/linux/xlib.c
-        src/detection/gtk_qt/gtk.c
-        src/detection/host/host_nosupport.c
-        src/detection/icons/icons_linux.c
-        src/detection/initsystem/initsystem_linux.c
-        src/detection/libc/libc_linux.c
         src/detection/loadavg/loadavg_linux.c
-        src/detection/locale/locale_linux.c
-        src/detection/localip/localip_linux.c
         src/detection/memory/memory_linux.c
-        src/detection/netio/netio_nosupport.c
         src/detection/os/os_linux.c
         src/detection/packages/packages_linux.c
         src/detection/packages/packages_nix.c
-        src/detection/processes/processes_linux.c
-        src/detection/gtk_qt/qt.c
-        src/detection/swap/swap_linux.c
-        src/detection/terminalshell/terminalshell_linux.c
-        src/detection/terminalsize/terminalsize_linux.c
         src/detection/uptime/uptime_linux.c
-        src/detection/users/users_linux.c
-        src/detection/wallpaper/wallpaper_linux.c
-        src/detection/wifi/wifi_nosupport.c
-        src/detection/media/media_linux.c
    )
 endif()
 
@@ -1246,22 +840,6 @@ ff_lib_enable(SQLITE3
 ff_lib_enable(RPM
     "rpm"
     "RPM"
-)
-ff_lib_enable(IMAGEMAGICK7
-    "MagickCore-7.Q16HDRI;MagickCore-7.Q16;MagickCore-7;/usr/lib/imagemagick7/pkgconfig/MagickCore-7.Q16HDRI.pc;/usr/lib/imagemagick7/pkgconfig/MagickCore-7.Q16.pc;/usr/lib/imagemagick7/pkgconfig/MagickCore-7.pc"
-    "ImageMagick7"
-)
-ff_lib_enable(IMAGEMAGICK6
-    "MagickCore-6.Q16HDRI;MagickCore-6.Q16;MagickCore-6;/usr/lib/imagemagick6/pkgconfig/MagickCore-6.Q16HDRI.pc;/usr/lib/imagemagick6/pkgconfig/MagickCore-6.Q16.pc;/usr/lib/imagemagick6/pkgconfig/MagickCore-6.pc"
-    "ImageMagick6"
-)
-ff_lib_enable(ZLIB
-    "zlib"
-    "ZLIB"
-)
-ff_lib_enable(CHAFA
-    "chafa>=1.10"
-    "Chafa"
 )
 ff_lib_enable(ELF
     "libelf"

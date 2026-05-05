@@ -4,92 +4,16 @@
 #include "common/processing.h"
 #include "common/textModifier.h"
 #include "common/stringUtils.h"
-#include "detection/media/media.h"
 #include "detection/os/os.h"
-#include "detection/terminalshell/terminalshell.h"
-
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-
-static bool ffLogoPrintCharsRaw(const char* data, size_t length, bool printError) {
-    FFOptionsLogo* options = &instance.config.logo;
-    FF_STRBUF_AUTO_DESTROY buf = ffStrbufCreate();
-
-    if (!options->width || !options->height) {
-        if (options->position == FF_LOGO_POSITION_LEFT) {
-            ffStrbufAppendF(&buf, "\e[2J\e[3J\e[%u;%uH", (unsigned) options->paddingTop + 1, (unsigned) options->paddingLeft + 1);
-        } else if (options->position == FF_LOGO_POSITION_TOP) {
-            ffStrbufAppendNC(&buf, options->paddingTop, '\n');
-            ffStrbufAppendNC(&buf, options->paddingLeft, ' ');
-        } else if (options->position == FF_LOGO_POSITION_RIGHT) {
-            if (!options->width) {
-                if (printError) {
-                    fputs("Logo (image-raw): Must set logo width when using position right\n", stderr);
-                }
-                return false;
-            }
-            ffStrbufAppendF(&buf, "\e[2J\e[3J\e[%u;9999999H\e[%uD", (unsigned) options->paddingTop + 1, (unsigned) options->paddingRight + options->width);
-        }
-        ffStrbufAppendNS(&buf, (uint32_t) length, data);
-        ffWriteFDBuffer(FFUnixFD2NativeFD(STDOUT_FILENO), &buf);
-
-        if (options->position == FF_LOGO_POSITION_LEFT || options->position == FF_LOGO_POSITION_RIGHT) {
-            uint16_t X = 0, Y = 0;
-            // Windows Terminal doesn't report `\e` for some reason
-            const char* error = ffGetTerminalResponse("\e[6n", 2, "%*[^0-9]%hu;%huR", &Y, &X); // %*[^0-9]: ignore optional \e[
-            if (error) {
-                if (printError) {
-                    fprintf(stderr, "\nLogo (image-raw): fail to query cursor position: %s\n", error);
-                }
-                return true;
-            }
-            if (options->position == FF_LOGO_POSITION_LEFT) {
-                if (options->width + options->paddingLeft > X) {
-                    X = (uint16_t) (options->width + options->paddingLeft);
-                }
-                instance.state.logoWidth = X + instance.config.logo.paddingRight - 1;
-            }
-            instance.state.logoHeight = Y;
-            fputs("\e[H", stdout);
-        } else if (options->position == FF_LOGO_POSITION_TOP) {
-            instance.state.logoWidth = instance.state.logoHeight = 0;
-            ffPrintCharTimes('\n', options->paddingRight);
-        }
-    } else {
-        ffStrbufAppendNC(&buf, options->paddingTop, '\n');
-
-        if (options->position == FF_LOGO_POSITION_RIGHT) {
-            ffStrbufAppendF(&buf, "\e[9999999C\e[%uD", (unsigned) options->paddingRight + options->width);
-        } else if (options->paddingLeft) {
-            ffStrbufAppendF(&buf, "\e[%uC", (unsigned) options->paddingLeft);
-        }
-
-        ffStrbufAppendNS(&buf, (uint32_t) length, data);
-        ffStrbufAppendC(&buf, '\n');
-
-        if (options->position == FF_LOGO_POSITION_LEFT) {
-            instance.state.logoWidth = options->width + options->paddingLeft + options->paddingRight;
-            instance.state.logoHeight = options->paddingTop + options->height;
-            ffStrbufAppendF(&buf, "\e[%uA", (unsigned) instance.state.logoHeight);
-        } else if (options->position == FF_LOGO_POSITION_TOP) {
-            instance.state.logoWidth = instance.state.logoHeight = 0;
-            ffStrbufAppendNC(&buf, options->paddingRight, '\n');
-        } else if (options->position == FF_LOGO_POSITION_RIGHT) {
-            instance.state.logoWidth = instance.state.logoHeight = 0;
-            ffStrbufAppendF(&buf, "\e[%uA", (unsigned) options->height);
-        }
-        ffWriteFDBuffer(FFUnixFD2NativeFD(STDOUT_FILENO), &buf);
-    }
-
-    return true;
-}
 
 // If result is NULL, calculate logo width
 // Returns logo height
 static uint32_t logoAppendChars(const char* data, bool doColorReplacement, FFstrbuf* result) {
     FFOptionsLogo* options = &instance.config.logo;
-    uint32_t currentlineLength = options->type == FF_LOGO_TYPE_IMAGE_CHAFA ? 0 : options->width; // For chafa, unit of options->width is pixels
+    uint32_t currentlineLength = options->width;
     uint32_t logoHeight = 0;
 
     if (result) {
@@ -243,7 +167,7 @@ static uint32_t logoAppendChars(const char* data, bool doColorReplacement, FFstr
         instance.state.logoWidth = currentlineLength;
     }
 
-    return options->type != FF_LOGO_TYPE_IMAGE_CHAFA && options->height > logoHeight ? options->height : logoHeight;
+    return options->height > logoHeight ? options->height : logoHeight;
 }
 
 void ffLogoPrintChars(const char* data, bool doColorReplacement) {
@@ -466,15 +390,6 @@ static bool updateLogoPath(void) {
         return true;
     }
 
-    if (ffStrbufIgnCaseEqualS(&options->source, "media-cover")) {
-        const FFMediaResult* media = ffDetectMedia(true);
-        if (media->cover.length == 0) {
-            return false;
-        }
-        ffStrbufSet(&options->source, &media->cover);
-        return true;
-    }
-
     FF_STRBUF_AUTO_DESTROY fullPath = ffStrbufCreateA(128);
     if (ffPathExpandEnv(options->source.chars, &fullPath) && ffPathExists(fullPath.chars, FF_PATHTYPE_FILE)) {
         ffStrbufDestroy(&options->source);
@@ -498,7 +413,7 @@ static bool updateLogoPath(void) {
     return false;
 }
 
-static bool logoPrintFileIfExists(bool doColorReplacement, bool raw) {
+static bool logoPrintFileIfExists(bool doColorReplacement) {
     FFOptionsLogo* options = &instance.config.logo;
 
     FF_STRBUF_AUTO_DESTROY content = ffStrbufCreate();
@@ -513,20 +428,7 @@ static bool logoPrintFileIfExists(bool doColorReplacement, bool raw) {
     }
 
     logoApplyColors(logoGetBuiltinDetected(FF_LOGO_SIZE_NORMAL), doColorReplacement);
-    if (raw) {
-        return ffLogoPrintCharsRaw(content.chars, content.length, instance.config.display.showErrors);
-    }
-
     ffLogoPrintChars(content.chars, doColorReplacement);
-    return true;
-}
-
-static bool logoPrintImageIfExists(FFLogoType logo, bool printError) {
-    if (!ffLogoPrintImageIfExists(logo, printError)) {
-        return false;
-    }
-
-    logoApplyColors(logoGetBuiltinDetected(FF_LOGO_SIZE_NORMAL), false);
     return true;
 }
 
@@ -585,18 +487,14 @@ static bool logoTryKnownType(void) {
     }
 
     if (options->type == FF_LOGO_TYPE_FILE) {
-        return logoPrintFileIfExists(true, false);
+        return logoPrintFileIfExists(true);
     }
 
     if (options->type == FF_LOGO_TYPE_FILE_RAW) {
-        return logoPrintFileIfExists(false, false);
+        return logoPrintFileIfExists(false);
     }
 
-    if (options->type == FF_LOGO_TYPE_IMAGE_RAW) {
-        return logoPrintFileIfExists(false, true);
-    }
-
-    return logoPrintImageIfExists(options->type, instance.config.display.showErrors);
+    return false;
 }
 
 void ffLogoPrint(void) {
@@ -635,43 +533,8 @@ void ffLogoPrint(void) {
 
     // Make sure the logo path is set correctly.
     if (updateLogoPath()) {
-        if (ffStrbufEndsWithIgnCaseS(&options->source, ".raw")) {
-            if (logoPrintFileIfExists(false, true)) {
-                return;
-            }
-        }
-
-        if (!ffStrbufEndsWithIgnCaseS(&options->source, ".txt")) {
-            const FFTerminalResult* terminal = ffDetectTerminal();
-
-            bool supportsIterm2 = ffStrbufEqualS(&terminal->prettyName, "iTerm");
-
-            if (supportsIterm2 && logoPrintImageIfExists(FF_LOGO_TYPE_IMAGE_ITERM, false)) {
-                return;
-            }
-
-            // Terminal emulators that support kitty graphics protocol.
-            bool supportsKitty =
-                ffStrbufIgnCaseEqualS(&terminal->processName, "kitty") ||
-                ffStrbufIgnCaseEqualS(&terminal->processName, "konsole") ||
-                ffStrbufIgnCaseEqualS(&terminal->processName, "wezterm") ||
-                ffStrbufIgnCaseEqualS(&terminal->processName, "wayst") ||
-                ffStrbufIgnCaseEqualS(&terminal->processName, "ghostty") ||
-#ifdef __APPLE__
-                ffStrbufIgnCaseEqualS(&terminal->processName, "WarpTerminal") ||
-#else
-                ffStrbufIgnCaseEqualS(&terminal->processName, "warp") ||
-#endif
-                false;
-
-            // Try to load the logo as an image. If it succeeds, print it and return.
-            if (logoPrintImageIfExists(supportsKitty ? FF_LOGO_TYPE_IMAGE_KITTY : FF_LOGO_TYPE_IMAGE_CHAFA, false)) {
-                return;
-            }
-        }
-
         // Try to load the logo as a file. If it succeeds, print it and return.
-        if (logoPrintFileIfExists(true, false)) {
+        if (logoPrintFileIfExists(true)) {
             return;
         }
     } else {

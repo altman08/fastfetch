@@ -135,63 +135,13 @@ static void prepareModuleJsonObject(const char* type, yyjson_val* module) {
     switch (type[0]) {
         case 'c':
         case 'C': {
-            if (ffStrEqualsIgnCase(type, FF_CPUUSAGE_MODULE_NAME)) {
-                ffPrepareCPUUsage();
-            } else if (ffStrEqualsIgnCase(type, FF_COMMAND_MODULE_NAME)) {
+            if (ffStrEqualsIgnCase(type, FF_COMMAND_MODULE_NAME)) {
                 FF_A_CLEANUP(ffDestroyCommandOptions) FFCommandOptions options;
                 ffInitCommandOptions(&options);
                 if (module) {
                     ffCommandModuleInfo.parseJsonObject(&options, module);
                 }
                 ffPrepareCommand(&options);
-            }
-            break;
-        }
-        case 'd':
-        case 'D': {
-            if (ffStrEqualsIgnCase(type, FF_DISKIO_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyDiskIOOptions) FFDiskIOOptions options;
-                ffInitDiskIOOptions(&options);
-                if (module) {
-                    ffDiskIOModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareDiskIO(&options);
-            }
-            break;
-        }
-        case 'n':
-        case 'N': {
-            if (ffStrEqualsIgnCase(type, FF_NETIO_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyNetIOOptions) FFNetIOOptions options;
-                ffInitNetIOOptions(&options);
-                if (module) {
-                    ffNetIOModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareNetIO(&options);
-            }
-            break;
-        }
-        case 'p':
-        case 'P': {
-            if (ffStrEqualsIgnCase(type, FF_PUBLICIP_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyPublicIpOptions) FFPublicIPOptions options;
-                ffInitPublicIpOptions(&options);
-                if (module) {
-                    ffPublicIPModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPreparePublicIp(&options);
-            }
-            break;
-        }
-        case 'w':
-        case 'W': {
-            if (ffStrEqualsIgnCase(type, FF_WEATHER_MODULE_NAME)) {
-                FF_A_CLEANUP(ffDestroyWeatherOptions) FFWeatherOptions options;
-                ffInitWeatherOptions(&options);
-                if (module) {
-                    ffWeatherModuleInfo.parseJsonObject(&options, module);
-                }
-                ffPrepareWeather(&options);
             }
             break;
         }

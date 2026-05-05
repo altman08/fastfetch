@@ -33,9 +33,7 @@ const char* ffOptionsParseGeneralJsonConfig(FFOptionsGeneral* options, yyjson_va
             options->detectVersion = yyjson_get_bool(val);
         }
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__sun) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(__GNU__)
-        else if (unsafe_yyjson_equals_str(key, "playerName")) {
-            ffStrbufSetJsonVal(&options->playerName, val);
-        } else if (unsafe_yyjson_equals_str(key, "dsForceDrm")) {
+        else if (unsafe_yyjson_equals_str(key, "dsForceDrm")) {
             if (yyjson_is_str(val)) {
                 int value;
                 const char* error = ffJsonConfigParseEnum(val, &value, (FFKeyValuePair[]) {
@@ -76,9 +74,7 @@ bool ffOptionsParseGeneralCommandLine(FFOptionsGeneral* options, const char* key
         options->detectVersion = ffOptionParseBoolean(value);
     }
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__sun) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(__GNU__)
-    else if (ffStrEqualsIgnCase(key, "--player-name")) {
-        ffOptionParseString(key, value, &options->playerName);
-    } else if (ffStrEqualsIgnCase(key, "--ds-force-drm")) {
+    else if (ffStrEqualsIgnCase(key, "--ds-force-drm")) {
         if (ffOptionParseBoolean(value)) {
             options->dsForceDrm = FF_DS_FORCE_DRM_TYPE_TRUE;
         } else if (ffStrEqualsIgnCase(value, "sysfs-only")) {
@@ -106,7 +102,6 @@ void ffOptionsInitGeneral(FFOptionsGeneral* options) {
     options->detectVersion = true;
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__sun) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(__GNU__)
-    ffStrbufInit(&options->playerName);
     options->dsForceDrm = FF_DS_FORCE_DRM_TYPE_FALSE;
 #elif defined(_WIN32)
     options->wmiTimeout = 5000;
@@ -114,9 +109,6 @@ void ffOptionsInitGeneral(FFOptionsGeneral* options) {
 }
 
 void ffOptionsDestroyGeneral(FF_A_UNUSED FFOptionsGeneral* options) {
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__sun) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(__GNU__)
-    ffStrbufDestroy(&options->playerName);
-#endif
 }
 
 void ffOptionsGenerateGeneralJsonConfig(FFdata* data, FFOptionsGeneral* options) {
@@ -130,8 +122,6 @@ void ffOptionsGenerateGeneralJsonConfig(FFdata* data, FFOptionsGeneral* options)
     yyjson_mut_obj_add_bool(doc, obj, "detectVersion", options->detectVersion);
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__sun) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__HAIKU__) || defined(__GNU__)
-
-    yyjson_mut_obj_add_strbuf(doc, obj, "playerName", &options->playerName);
 
     switch (options->dsForceDrm) {
         case FF_DS_FORCE_DRM_TYPE_FALSE:

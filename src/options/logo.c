@@ -18,12 +18,6 @@ void ffOptionsInitLogo(FFOptionsLogo* options) {
     options->preserveAspectRatio = false;
     options->recache = false;
     options->position = FF_LOGO_POSITION_LEFT;
-
-    options->chafaFgOnly = false;
-    ffStrbufInitStatic(&options->chafaSymbols, "block+border+space-wide-inverted"); // Chafa default
-    options->chafaCanvasMode = UINT32_MAX;
-    options->chafaColorSpace = UINT32_MAX;
-    options->chafaDitherMode = UINT32_MAX;
 }
 
 bool ffOptionsParseLogoCommandLine(FFOptionsLogo* options, const char* key, const char* value) {
@@ -57,13 +51,6 @@ bool ffOptionsParseLogoCommandLine(FFOptionsLogo* options, const char* key, cons
                                                                            { "data", FF_LOGO_TYPE_DATA },
                                                                            { "data-raw", FF_LOGO_TYPE_DATA_RAW },
                                                                            { "command-raw", FF_LOGO_TYPE_COMMAND_RAW },
-                                                                           { "sixel", FF_LOGO_TYPE_IMAGE_SIXEL },
-                                                                           { "kitty", FF_LOGO_TYPE_IMAGE_KITTY },
-                                                                           { "kitty-direct", FF_LOGO_TYPE_IMAGE_KITTY_DIRECT },
-                                                                           { "kitty-icat", FF_LOGO_TYPE_IMAGE_KITTY_ICAT },
-                                                                           { "iterm", FF_LOGO_TYPE_IMAGE_ITERM },
-                                                                           { "chafa", FF_LOGO_TYPE_IMAGE_CHAFA },
-                                                                           { "raw", FF_LOGO_TYPE_IMAGE_RAW },
                                                                            { "none", FF_LOGO_TYPE_NONE },
                                                                            {},
                                                                        });
@@ -135,60 +122,6 @@ bool ffOptionsParseLogoCommandLine(FFOptionsLogo* options, const char* key, cons
         } else {
             return false;
         }
-    } else if (ffStrEqualsIgnCase(key, "--sixel")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_SIXEL;
-    } else if (ffStrEqualsIgnCase(key, "--kitty")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_KITTY;
-    } else if (ffStrEqualsIgnCase(key, "--kitty-direct")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_KITTY_DIRECT;
-    } else if (ffStrEqualsIgnCase(key, "--kitty-icat")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_KITTY_ICAT;
-    } else if (ffStrEqualsIgnCase(key, "--iterm")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_ITERM;
-    } else if (ffStrEqualsIgnCase(key, "--raw")) {
-        ffOptionParseString(key, value, &options->source);
-        options->type = FF_LOGO_TYPE_IMAGE_RAW;
-    } else if ((subKey = ffOptionTestPrefix(key, "chafa"))) {
-        if (subKey[0] == '\0') {
-            ffOptionParseString(key, value, &options->source);
-            options->type = FF_LOGO_TYPE_IMAGE_CHAFA;
-        } else if (ffStrEqualsIgnCase(subKey, "fg-only")) {
-            options->chafaFgOnly = ffOptionParseBoolean(value);
-        } else if (ffStrEqualsIgnCase(subKey, "symbols")) {
-            ffOptionParseString(key, value, &options->chafaSymbols);
-        } else if (ffStrEqualsIgnCase(subKey, "canvas-mode")) {
-            options->chafaCanvasMode = (uint32_t) ffOptionParseEnum(key, value, (FFKeyValuePair[]) {
-                                                                                    { "TRUECOLOR", 0 },
-                                                                                    { "INDEXED_256", 1 },
-                                                                                    { "INDEXED_240", 2 },
-                                                                                    { "INDEXED_16", 3 },
-                                                                                    { "FGBG_BGFG", 4 },
-                                                                                    { "FGBG", 5 },
-                                                                                    { "INDEXED_8", 6 },
-                                                                                    { "INDEXED_16_8", 7 },
-                                                                                    {},
-                                                                                });
-        } else if (ffStrEqualsIgnCase(subKey, "color-space")) {
-            options->chafaColorSpace = (uint32_t) ffOptionParseEnum(key, value, (FFKeyValuePair[]) {
-                                                                                    { "RGB", 0 },
-                                                                                    { "DIN99D", 1 },
-                                                                                    {},
-                                                                                });
-        } else if (ffStrEqualsIgnCase(subKey, "dither-mode")) {
-            options->chafaDitherMode = (uint32_t) ffOptionParseEnum(key, value, (FFKeyValuePair[]) {
-                                                                                    { "NONE", 0 },
-                                                                                    { "ORDERED", 1 },
-                                                                                    { "DIFFUSION", 2 },
-                                                                                    {},
-                                                                                });
-        } else {
-            return false;
-        }
     } else {
         return false;
     }
@@ -198,7 +131,6 @@ bool ffOptionsParseLogoCommandLine(FFOptionsLogo* options, const char* key, cons
 
 void ffOptionsDestroyLogo(FFOptionsLogo* options) {
     ffStrbufDestroy(&options->source);
-    ffStrbufDestroy(&options->chafaSymbols);
     for (uint8_t i = 0; i < (uint8_t) FASTFETCH_LOGO_MAX_COLORS; ++i) {
         ffStrbufDestroy(&options->colors[i]);
     }
@@ -240,13 +172,6 @@ const char* ffOptionsParseLogoJsonConfig(FFOptionsLogo* options, yyjson_val* roo
                                                                        { "data", FF_LOGO_TYPE_DATA },
                                                                        { "data-raw", FF_LOGO_TYPE_DATA_RAW },
                                                                        { "command-raw", FF_LOGO_TYPE_COMMAND_RAW },
-                                                                       { "sixel", FF_LOGO_TYPE_IMAGE_SIXEL },
-                                                                       { "kitty", FF_LOGO_TYPE_IMAGE_KITTY },
-                                                                       { "kitty-direct", FF_LOGO_TYPE_IMAGE_KITTY_DIRECT },
-                                                                       { "kitty-icat", FF_LOGO_TYPE_IMAGE_KITTY_ICAT },
-                                                                       { "iterm", FF_LOGO_TYPE_IMAGE_ITERM },
-                                                                       { "chafa", FF_LOGO_TYPE_IMAGE_CHAFA },
-                                                                       { "raw", FF_LOGO_TYPE_IMAGE_RAW },
                                                                        { "none", FF_LOGO_TYPE_NONE },
                                                                        {},
                                                                    });
@@ -337,73 +262,6 @@ const char* ffOptionsParseLogoJsonConfig(FFOptionsLogo* options, yyjson_val* roo
             }
             options->position = (FFLogoPosition) value;
             continue;
-        } else if (unsafe_yyjson_equals_str(key, "chafa")) {
-            if (!yyjson_is_obj(val)) {
-                return "Chafa config must be an object";
-            }
-
-            yyjson_val* fgOnly = yyjson_obj_get(val, "fgOnly");
-            if (fgOnly) {
-                options->chafaFgOnly = yyjson_get_bool(fgOnly);
-            }
-
-            yyjson_val* symbols = yyjson_obj_get(val, "symbols");
-            if (symbols) {
-                ffStrbufSetJsonVal(&options->chafaSymbols, symbols);
-            }
-
-            yyjson_val* canvasMode = yyjson_obj_get(val, "canvasMode");
-            if (canvasMode) {
-                int value;
-                const char* error = ffJsonConfigParseEnum(canvasMode, &value, (FFKeyValuePair[]) {
-                                                                                  { "TRUECOLOR", 0 },
-                                                                                  { "INDEXED_256", 1 },
-                                                                                  { "INDEXED_240", 2 },
-                                                                                  { "INDEXED_16", 3 },
-                                                                                  { "FGBG_BGFG", 4 },
-                                                                                  { "FGBG", 5 },
-                                                                                  { "INDEXED_8", 6 },
-                                                                                  { "INDEXED_16_8", 7 },
-                                                                                  {},
-                                                                              });
-
-                if (error) {
-                    return error;
-                }
-                options->chafaCanvasMode = (uint32_t) value;
-            }
-
-            yyjson_val* colorSpace = yyjson_obj_get(val, "colorSpace");
-            if (colorSpace) {
-                int value;
-                const char* error = ffJsonConfigParseEnum(colorSpace, &value, (FFKeyValuePair[]) {
-                                                                                  { "RGB", 0 },
-                                                                                  { "DIN99D", 1 },
-                                                                                  {},
-                                                                              });
-
-                if (error) {
-                    return error;
-                }
-                options->chafaColorSpace = (uint32_t) value;
-            }
-
-            yyjson_val* ditherMode = yyjson_obj_get(val, "ditherMode");
-            if (ditherMode) {
-                int value;
-                const char* error = ffJsonConfigParseEnum(ditherMode, &value, (FFKeyValuePair[]) {
-                                                                                  { "NONE", 0 },
-                                                                                  { "ORDERED", 1 },
-                                                                                  { "DIFFUSION", 2 },
-                                                                                  {},
-                                                                              });
-
-                if (error) {
-                    return error;
-                }
-                options->chafaDitherMode = (uint32_t) value;
-            }
-            continue;
         } else {
             return "Unknown logo key";
         }
@@ -440,27 +298,6 @@ void ffOptionsGenerateLogoJsonConfig(FFdata* data, FFOptionsLogo* options) {
             break;
         case FF_LOGO_TYPE_COMMAND_RAW:
             yyjson_mut_obj_add_str(doc, obj, "type", "command-raw");
-            break;
-        case FF_LOGO_TYPE_IMAGE_SIXEL:
-            yyjson_mut_obj_add_str(doc, obj, "type", "sixel");
-            break;
-        case FF_LOGO_TYPE_IMAGE_KITTY:
-            yyjson_mut_obj_add_str(doc, obj, "type", "kitty");
-            break;
-        case FF_LOGO_TYPE_IMAGE_KITTY_DIRECT:
-            yyjson_mut_obj_add_str(doc, obj, "type", "kitty-direct");
-            break;
-        case FF_LOGO_TYPE_IMAGE_KITTY_ICAT:
-            yyjson_mut_obj_add_str(doc, obj, "type", "kitty-icat");
-            break;
-        case FF_LOGO_TYPE_IMAGE_ITERM:
-            yyjson_mut_obj_add_str(doc, obj, "type", "iterm");
-            break;
-        case FF_LOGO_TYPE_IMAGE_CHAFA:
-            yyjson_mut_obj_add_str(doc, obj, "type", "chafa");
-            break;
-        case FF_LOGO_TYPE_IMAGE_RAW:
-            yyjson_mut_obj_add_str(doc, obj, "type", "raw");
             break;
         default:
             yyjson_mut_obj_add_str(doc, obj, "type", "auto");
@@ -508,39 +345,6 @@ void ffOptionsGenerateLogoJsonConfig(FFdata* data, FFOptionsLogo* options) {
                                                      "top",
                                                      "right",
                                                  })[options->position]);
-
-    {
-        yyjson_mut_val* chafa = yyjson_mut_obj(doc);
-        yyjson_mut_obj_add_bool(doc, chafa, "fgOnly", options->chafaFgOnly);
-        yyjson_mut_obj_add_strbuf(doc, chafa, "symbols", &options->chafaSymbols);
-        if (options->chafaCanvasMode <= 7) {
-            yyjson_mut_obj_add_str(doc, chafa, "canvasMode", ((const char*[]) {
-                                                                 "TRUECOLOR",
-                                                                 "INDEXED_256",
-                                                                 "INDEXED_240",
-                                                                 "INDEXED_16",
-                                                                 "FGBG_BGFG",
-                                                                 "FGBG",
-                                                                 "INDEXED_8",
-                                                                 "INDEXED_16_8",
-                                                             })[options->chafaCanvasMode]);
-        }
-        if (options->chafaColorSpace <= 1) {
-            yyjson_mut_obj_add_str(doc, chafa, "colorSpace", ((const char*[]) {
-                                                                 "RGB",
-                                                                 "DIN99D",
-                                                             })[options->chafaColorSpace]);
-        }
-        if (options->chafaDitherMode <= 2) {
-            yyjson_mut_obj_add_str(doc, chafa, "ditherMode", ((const char*[]) {
-                                                                 "NONE",
-                                                                 "ORDERED",
-                                                                 "DIFFUSION",
-                                                             })[options->chafaDitherMode]);
-        }
-
-        yyjson_mut_obj_add_val(doc, obj, "chafa", chafa);
-    }
 
     yyjson_mut_obj_add_val(doc, doc->root, "logo", obj);
 }

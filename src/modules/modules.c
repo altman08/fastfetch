@@ -7,7 +7,6 @@ static FFModuleBaseInfo* A[] = {
 static FFModuleBaseInfo* B[] = {
     &ffBoardModuleInfo,
     &ffBreakModuleInfo,
-    &ffBtrfsModuleInfo,
     NULL,
 };
 
@@ -15,23 +14,17 @@ static FFModuleBaseInfo* C[] = {
     &ffCommandModuleInfo,
     &ffColorsModuleInfo,
     &ffCPUModuleInfo,
-    &ffCPUCacheModuleInfo,
-    &ffCPUUsageModuleInfo,
     &ffCustomModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* D[] = {
     &ffDateTimeModuleInfo,
-    &ffDisplayModuleInfo,
     &ffDiskModuleInfo,
-    &ffDiskIOModuleInfo,
-    &ffDNSModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* E[] = {
-    &ffEditorModuleInfo,
     NULL,
 };
 
@@ -44,13 +37,10 @@ static FFModuleBaseInfo* G[] = {
 };
 
 static FFModuleBaseInfo* H[] = {
-    &ffHostModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* I[] = {
-    &ffIconsModuleInfo,
-    &ffInitSystemModuleInfo,
     NULL,
 };
 
@@ -65,9 +55,6 @@ static FFModuleBaseInfo* K[] = {
 
 static FFModuleBaseInfo* L[] = {
     &ffLoadavgModuleInfo,
-    &ffLocaleModuleInfo,
-    &ffLocalIPModuleInfo,
-    &ffLogoModuleInfo,
     NULL,
 };
 
@@ -77,7 +64,6 @@ static FFModuleBaseInfo* M[] = {
 };
 
 static FFModuleBaseInfo* N[] = {
-    &ffNetIOModuleInfo,
     NULL,
 };
 
@@ -88,10 +74,6 @@ static FFModuleBaseInfo* O[] = {
 
 static FFModuleBaseInfo* P[] = {
     &ffPackagesModuleInfo,
-    &ffPhysicalDiskModuleInfo,
-    &ffPhysicalMemoryModuleInfo,
-    &ffProcessesModuleInfo,
-    &ffPublicIPModuleInfo,
     NULL,
 };
 
@@ -105,33 +87,24 @@ static FFModuleBaseInfo* R[] = {
 
 static FFModuleBaseInfo* S[] = {
     &ffSeparatorModuleInfo,
-    &ffShellModuleInfo,
-    &ffSwapModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* T[] = {
-    &ffTerminalModuleInfo,
-    &ffTerminalSizeModuleInfo,
     &ffTitleModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* U[] = {
     &ffUptimeModuleInfo,
-    &ffUsersModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* V[] = {
-    &ffVersionModuleInfo,
     NULL,
 };
 
 static FFModuleBaseInfo* W[] = {
-    &ffWallpaperModuleInfo,
-    &ffWeatherModuleInfo,
-    &ffWifiModuleInfo,
     NULL,
 };
 

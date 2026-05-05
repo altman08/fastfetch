@@ -64,57 +64,7 @@ bool ffParseModuleOptions(const char* key, const char* value) {
 }
 
 void ffPrepareCommandOption(FFdata* data) {
-    char* moduleType = NULL;
-    size_t moduleLen = 0;
-    while (ffStrbufGetdelim(&moduleType, &moduleLen, ':', &data->structure)) {
-#define FF_IF_MODULE_MATCH(moduleNameConstant) if (moduleLen == strlen(moduleNameConstant) && ffStrEqualsIgnCase(moduleType, moduleNameConstant) && !ffStrbufSeparatedContainIgnCaseS(&data->structureDisabled, moduleNameConstant, ':'))
-
-        switch (moduleType[0]) {
-            case 'C':
-            case 'c':
-                FF_IF_MODULE_MATCH(FF_CPUUSAGE_MODULE_NAME)
-                ffPrepareCPUUsage();
-                break;
-
-            case 'D':
-            case 'd':
-                FF_IF_MODULE_MATCH(FF_DISKIO_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyDiskIOOptions) FFDiskIOOptions options;
-                    ffInitDiskIOOptions(&options);
-                    ffPrepareDiskIO(&options);
-                }
-                break;
-
-            case 'N':
-            case 'n':
-                FF_IF_MODULE_MATCH(FF_NETIO_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyNetIOOptions) FFNetIOOptions options;
-                    ffInitNetIOOptions(&options);
-                    ffPrepareNetIO(&options);
-                }
-                break;
-
-            case 'P':
-            case 'p':
-                FF_IF_MODULE_MATCH(FF_PUBLICIP_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyPublicIpOptions) FFPublicIPOptions options;
-                    ffInitPublicIpOptions(&options);
-                    ffPreparePublicIp(&options);
-                }
-                break;
-
-            case 'W':
-            case 'w':
-                FF_IF_MODULE_MATCH(FF_WEATHER_MODULE_NAME) {
-                    FF_A_CLEANUP(ffDestroyWeatherOptions) FFWeatherOptions options;
-                    ffInitWeatherOptions(&options);
-                    ffPrepareWeather(&options);
-                }
-                break;
-        }
-
-#undef FF_IF_MODULE_MATCH
-    }
+    (void) data;
 }
 
 static void genJsonConfig(FFdata* data, FFModuleBaseInfo* baseInfo, void* options) {

@@ -203,29 +203,20 @@
                     "file-raw": "Text file, printed as is",
                     "data": "Text data, printed with color code replacement",
                     "data-raw": "Text data, printed as is",
-                    "sixel": "Image file, rendered as sixel",
-                    "kitty": "Image file, rendered using the Kitty graphics protocol",
-                    "kitty-direct": "Image file, tells the terminal emulator to read image data from the specified file",
-                    "kitty-icat": "Image file, displayed using `kitten icat`. Requires the `kitten` binary",
-                    "iterm": "Image file, rendered using the iTerm graphics protocol",
-                    "chafa": "Image file, printed as ASCII art using libchafa",
-                    "raw": "Image file, printed as raw binary string",
                     "none": "Disable logo printing"
                 }
             }
         },
         {
             "long": "logo-width",
-            "desc": "Set the width of the logo (in characters) if it is an image",
-            "remark": "Required for iTerm image protocol",
+            "desc": "Set the width of the logo (in characters)",
             "arg": {
                 "type": "num"
             }
         },
         {
             "long": "logo-height",
-            "desc": "Set the height of the logo (in characters) if it is an image",
-            "remark": "Required for iTerm image protocol",
+            "desc": "Set the height of the logo (in characters)",
             "arg": {
                 "type": "num"
             }
@@ -337,123 +328,6 @@
             "remark": "See \"--help logo-type\" for more info",
             "arg": {
                 "type": "data"
-            }
-        },
-        {
-            "long": "raw",
-            "desc": "Short for --logo-type raw --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "sixel",
-            "desc": "Short for --logo-type sixel --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "kitty",
-            "desc": "Short for --logo-type kitty --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "kitty-direct",
-            "desc": "Short for --logo-type kitty-direct --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "kitty-icat",
-            "desc": "Short for --logo-type kitty-icat --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "iterm",
-            "desc": "Short for --logo-type iterm --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "chafa",
-            "desc": "Short for --logo-type chafa --logo <path>",
-            "remark": "See \"--help logo-type\" for more info",
-            "arg": {
-                "type": "path"
-            }
-        },
-        {
-            "long": "chafa-fg-only",
-            "desc": "Produce character-cell output using foreground colors only",
-            "remark": "See the Chafa documentation for details",
-            "arg": {
-                "type": "bool",
-                "optional": true,
-                "default": false
-            }
-        },
-        {
-            "long": "chafa-symbols",
-            "desc": "Specify character symbols to employ in final output",
-            "remark": "See the Chafa documentation for details",
-            "arg": {
-                "type": "str"
-            }
-        },
-        {
-            "long": "chafa-canvas-mode",
-            "desc": "Determine how colors are used in the output",
-            "remark": "This value maps to the integer value of enum ChafaCanvasMode. See the Chafa documentation for details",
-            "arg": {
-                "type": "enum",
-                "enum": {
-                    "TRUECOLOR": "Truecolor",
-                    "INDEXED_256": "256 colors",
-                    "INDEXED_240": "256 colors, but avoid using the lower 16 whose values vary between terminal environments",
-                    "INDEXED_16": "16 colors using the aixterm ANSI extension",
-                    "FGBG_BGFG": "Default foreground and background colors, plus inversion",
-                    "FGBG": "Default foreground and background colors. No ANSI codes will be used",
-                    "INDEXED_8": "8 colors, compatible with original ANSI X3.64",
-                    "INDEXED_16_8": "16 FG colors (8 of which enabled with bold/bright) and 8 BG colors"
-                }
-            }
-        },
-        {
-            "long": "chafa-color-space",
-            "desc": "Set the color space used for quantization",
-            "remark": "This value maps to the integer value of enum ChafaColorSpace. See the Chafa documentation for details",
-            "arg": {
-                "type": "enum",
-                "enum": {
-                    "RGB": "RGB color space. Fast but imprecise",
-                    "DIN99D": "DIN99d color space. Slower, but good perceptual color precision"
-                }
-            }
-        },
-        {
-            "long": "chafa-dither-mode",
-            "desc": "Set the output dithering mode (no effect with 24-bit color)",
-            "remark": "This value maps to the integer value of enum ChafaDitherMode. See the Chafa documentation for details",
-            "arg": {
-                "type": "enum",
-                "enum": {
-                    "NONE": "No dithering",
-                    "ORDERED": "Ordered dithering (Bayer or similar)",
-                    "DIFFUSION": "Error diffusion dithering (Floyd-Steinberg or similar)"
-                }
             }
         }
     ],
