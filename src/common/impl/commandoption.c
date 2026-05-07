@@ -128,7 +128,7 @@ static bool parseStructureCommand(
         }
     }
 
-    if (fn == genJsonResult) {
+    if (fn == genJsonResult && data->resultDoc != NULL) {
         yyjson_mut_doc* doc = data->resultDoc;
         yyjson_mut_val* module = yyjson_mut_arr_add_obj(doc, doc->root);
         yyjson_mut_obj_add_str(doc, module, "type", line);
