@@ -7,7 +7,7 @@ rm -rf build
 mkdir -p build/
 cd build/
 
-TOOLCHAIN=/opt/toolchains/crosstools-aarch64-gcc-5.5-linux-4.1-glibc-2.26-binutils-2.28.1
+TOOLCHAIN="${TOOLCHAIN:-/opt/toolchains/crosstools-aarch64-gcc-5.5-linux-4.1-glibc-2.26-binutils-2.28.1}"
 
 cmake \
     -DCMAKE_C_COMPILER="${TOOLCHAIN}/bin/aarch64-linux-gcc" \
@@ -28,6 +28,7 @@ cmake \
     -DENABLE_LIBZFS=OFF \
     -DENABLE_DIRECTX_HEADERS=OFF \
     -DENABLE_GIO=OFF \
+    -DENABLE_SQLITE3=OFF \
     ..
 
 kernel_name="$(uname -s)"

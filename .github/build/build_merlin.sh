@@ -7,7 +7,7 @@ rm -rf build
 mkdir -p build/
 cd build/
 
-TOOLCHAIN=/opt/toolchains/crosstools-arm-gcc-9.2-linux-4.19-glibc-2.30-binutils-2.32
+TOOLCHAIN="${TOOLCHAIN:-/opt/toolchains/crosstools-arm-gcc-5.5-linux-4.1-glibc-2.26-binutils-2.28.1}"
 
 cmake \
     -DCMAKE_C_COMPILER="${TOOLCHAIN}/bin/arm-linux-gcc" \
@@ -27,6 +27,7 @@ cmake \
     -DENABLE_LIBZFS=OFF \
     -DENABLE_DIRECTX_HEADERS=OFF \
     -DENABLE_GIO=OFF \
+    -DENABLE_SQLITE3=OFF \
     ..
 
 kernel_name="$(uname -s)"
