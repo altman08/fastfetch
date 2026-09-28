@@ -55,10 +55,44 @@ jobs:
           name: fastfetch-${{ matrix.platform.name }}
           path: build/fastfetch-${{ matrix.platform.name }}
 
+  # ---- OpenWrt APK 包 ----
+  build-openwrt-apk:
+    name: openwrt-apk-${{ matrix.target }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: armsr-armv7
+            arch: arm_cortex-a15_neon-vfpv4
+          - target: armsr-armv8
+            arch: aarch64_cortex-a53
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare package source
+        run: |
+          cp -a CMakeLists.txt LICENSE completions doc presets scripts src openwrt/
+      - name: Build OpenWrt APK
+        uses: openwrt/gh-action-sdk@v11
+        env:
+          # OpenWrt 25.12 SDK 使用 apk 包格式；24.10 SDK 仅产出 ipk。
+          ARCH: ${{ matrix.arch }}-25.12.5
+          FEEDNAME: fastfetch
+          FEED_DIR: ${{ github.workspace }}/openwrt
+          PACKAGES: fastfetch
+          V: sc
+          PRIVATE_KEY: ${{ secrets.OPENWRT_PRIVATE_KEY }}
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-fastfetch-${{ matrix.target }}
+          path: bin/packages/${{ matrix.arch }}/fastfetch/fastfetch-*.apk
+          if-no-files-found: error
+
   # ---- 发布 Release ----
   release-tag:
     runs-on: ubuntu-latest
-    needs: [build-cross]
+    needs: [build-cross, build-openwrt-apk]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
@@ -70,6 +104,12 @@ jobs:
           pattern: fastfetch-*
           path: build/arch
           merge-multiple: true
+      - name: Download OpenWrt APKs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: openwrt-fastfetch-*
+          path: build/openwrt
+          merge-multiple: true
       - name: Create Release Archives
         run: |
           cd build/arch
@@ -79,6 +119,8 @@ jobs:
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/arch/*.tar.gz
+          files: |
+            build/arch/*.tar.gz
+            build/openwrt/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
